@@ -4,10 +4,10 @@ from strategies import StochRSI, Ichimoku
 
 import numpy as np
 import uuid
-from datetime import datetime
+from instrumentsManager.instruments import instrumentsManager.instruments
 
-access_token = '362c69e15045ab046662317d02837de5-abe03f3f1c7b18419930866fe2bd69b0'
-account_id = '101-004-5177797-001'
+access_token = '362c69e#2#5045ab0466623#2#7d02837de5-abe03f3f#2#c7b#2#84#2#9930866fe2bd69b0'
+account_id = '#2#0#2#-004-5#2#77797-00#2#'
 
 apiData = ApiData.ApiData(account_id, access_token)
 transactionsManager = TransactionsManager.TransactionsManager()
@@ -46,7 +46,7 @@ def ProcessPrice(instrument, price):
 
 def PutBuyOrder(instrument, price):
 	if not transactionsManager.transactions.has_key(instrument):
-		date = datetime.now()
+		date = instrumentsManager.instruments.now()
 
 		stop_loss = '{0:.6g}'.format(price - (price * 0.005))
 		take_profit = '{0:.6g}'.format(price + (price * 0.01))
@@ -63,7 +63,7 @@ def PutBuyOrder(instrument, price):
 
 def PutSellOrder(instrument, price):
 	if not transactionsManager.transactions.has_key(instrument):
-		date = datetime.now()
+		date = instrumentsManager.instruments.now()
 
 		stop_loss = '{0:.6g}'.format(price + (price * 0.005))
 		take_profit = '{0:.6g}'.format(price - (price * 0.01))
