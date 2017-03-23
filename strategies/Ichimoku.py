@@ -38,8 +38,8 @@ class Ichimoku(object):
         return False;
 
     def _calculateMidPoint(self, high_prices, low_prices, window):
-        maxHigh = pd.rolling_max(high_prices, window = window);
-        maxLow = pd.rolling_min(low_prices, window = window);
+        maxHigh = high_prices.rolling(window=window,center=False).max();
+        maxLow = low_prices.rolling(window=window,center=False).min();
         midPoint = (maxHigh + maxLow) / 2;
 
         return midPoint;
