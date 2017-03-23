@@ -8,33 +8,36 @@ import matplotlib.pyplot as plt
 
 class Ichimoku(object):
 
-    apiData = {}
+    apiData = {};
+    actual_index = 0;
+    ichimoku_dataframe = pd.DataFrame();
 
     def __init__(self, api_account_id, api_access_token):
         self.apiData = ApiData.ApiData(api_account_id, api_access_token);
 
     def Verify(self, instrument, actual_price):
+        self._calculateIchimokuLines(instrument);
+
+
+    def _calculateIchimokuLines(self, instrument):
         dataS5 = self.apiData.GetData(instrument, "M1", 500);
 
-        ichimoku_dataframe = pd.DataFrame()
+        self.ichimoku_dataframe['TENKAN'] = self._calculateMidPoint(dataS5['high'], dataS5['low'], 7);
+        self.ichimoku_dataframe['KIJUN'] = self._calculateMidPoint(dataS5['high'], dataS5['low'], 22);
+        self.ichimoku_dataframe['SENKOU_A'] = ((self.ichimoku_dataframe['TENKAN'] + self.ichimoku_dataframe['KIJUN']) / 2).shift(22);
+        self.ichimoku_dataframe['SENKOU_B'] = self._calculateMidPoint(dataS5['high'], dataS5['low'], 44).shift(22);
+        self.ichimoku_dataframe['CHIKOU'] = dataS5['close'].shift(-22);
 
-        tenkan = self.CalculateMidPoint(dataS5['high'], dataS5['low'], 7);
-        kijun = self.CalculateMidPoint(dataS5['high'], dataS5['low'], 22);
-        senkou_span_a = ((tenkan + kijun) / 2).shift(22);
-        senkou_span_b = self.CalculateMidPoint(dataS5['high'], dataS5['low'], 44).shift(22);
-        chikou_span = dataS5['close'].shift(-22);
+        actual_index = len(self.ichimoku_dataframe['KIJUN'].dropnan().index)
 
-        ichimoku_dataframe['TENKAN'] = tenkan;
-        ichimoku_dataframe['KIJUN'] = kijun;
-        ichimoku_dataframe['SENKOU_A'] = senkou_span_a;
-        ichimoku_dataframe['SENKOU_B'] = senkou_span_b;
-        ichimoku_dataframe['CHIKOU'] = chikou_span;
+        print actual_index;
 
-        ichimoku_dataframe.fillna(method='ffill')
-        ichimoku_dataframe.plot()
-        plt.show()
+    def _isPriceTopOfKumo(self, actual_price):
 
-    def CalculateMidPoint(self, high_prices, low_prices, window):
+        if actual_price >1:
+            print "hola"
+
+    def _calculateMidPoint(self, high_prices, low_prices, window):
         maxHigh = pd.rolling_max(high_prices, window = window);
         maxLow = pd.rolling_min(low_prices, window = window);
         midPoint = (maxHigh + maxLow) / 2;

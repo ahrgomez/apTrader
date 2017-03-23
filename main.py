@@ -4,10 +4,10 @@ from strategies import StochRSI, Ichimoku
 
 import numpy as np
 import uuid
-from instrumentsManager.instruments import instrumentsManager.instruments
+from datetime import datetime
 
-access_token = '362c69e#2#5045ab0466623#2#7d02837de5-abe03f3f#2#c7b#2#84#2#9930866fe2bd69b0'
-account_id = '#2#0#2#-004-5#2#77797-00#2#'
+access_token = '362c69e15045ab046662317d02837de5-abe03f3f1c7b18419930866fe2bd69b0'
+account_id = '101-004-5177797-001'
 
 apiData = ApiData.ApiData(account_id, access_token)
 transactionsManager = TransactionsManager.TransactionsManager()
@@ -18,8 +18,6 @@ stochRSI = StochRSI.StochRSI(account_id, access_token)
 ichimoku = Ichimoku.Ichimoku(account_id, access_token)
 
 def main():
-	ichimoku.Verify("EUR_USD", 1)
-	"""
 	for inst in instrumentsManager.instruments:
 		actualPrice =  apiData.GetActualPrice(inst)
 		result = ProcessPrice(inst, actualPrice)
@@ -29,10 +27,10 @@ def main():
 			print inst + "SHORT"
 		else:
 			print inst + ": NONE"
-	"""
+
 
 def ProcessPrice(instrument, price):
-	check_result = stochRSI.Verify(instrument, price)
+	check_result = ichimoku.Verify(instrument, price)
 
 	if check_result == None:
 		return
@@ -46,7 +44,7 @@ def ProcessPrice(instrument, price):
 
 def PutBuyOrder(instrument, price):
 	if not transactionsManager.transactions.has_key(instrument):
-		date = instrumentsManager.instruments.now()
+		date = datetime.now()
 
 		stop_loss = '{0:.6g}'.format(price - (price * 0.005))
 		take_profit = '{0:.6g}'.format(price + (price * 0.01))
@@ -63,7 +61,7 @@ def PutBuyOrder(instrument, price):
 
 def PutSellOrder(instrument, price):
 	if not transactionsManager.transactions.has_key(instrument):
-		date = instrumentsManager.instruments.now()
+		date = datetime.now()
 
 		stop_loss = '{0:.6g}'.format(price + (price * 0.005))
 		take_profit = '{0:.6g}'.format(price - (price * 0.01))
