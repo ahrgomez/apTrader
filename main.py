@@ -18,15 +18,16 @@ stochRSI = StochRSI.StochRSI(account_id, access_token)
 ichimoku = Ichimoku.Ichimoku(account_id, access_token)
 
 def main():
-	for inst in instrumentsManager.instruments:
-		actualPrice =  apiData.GetActualPrice(inst)
-		result = ProcessPrice(inst, actualPrice)
-		if result == 1:
-			print inst + "LONG"
-		elif result == -1:
-			print inst + "SHORT"
-		else:
-			print inst + ": NONE"
+	inst = "GBP_USD"
+	#for inst in instrumentsManager.instruments:
+	actualPrice =  apiData.GetActualPrice(inst)
+	result = ProcessPrice(inst, actualPrice)
+	if result == 1:
+		print inst + "LONG"
+	elif result == -1:
+		print inst + "SHORT"
+	else:
+		print inst + ": NONE"
 
 
 def ProcessPrice(instrument, price):
