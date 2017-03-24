@@ -93,12 +93,12 @@ class Ichimoku(object):
                     new_tenkan = self.ichimoku_dataframe['TENKAN'].iloc[index]
                     new_kijun = self.ichimoku_dataframe['KIJUN'].iloc[index]
 
-                    if cross_value == 1:
-                        points = np.array([kijun_point, new_tenkan, new_kijun, tenkan_point]);
-                    else:
-                        points = np.array([tenkan_point, new_kijun, new_tenkan, kijun_point]);
+                    #if cross_value == 1:
+                    #points = , ;
+                    #else:
+                    #    points = np.array([tenkan_point, new_kijun, new_tenkan, kijun_point]);
 
-                    cross_point = self._calculateCrossPoint(points);
+                    cross_point = self._calculateCrossPoint(np.sort(np.array([tenkan_point, kijun_point])), np.sort(np.array([new_tenkan, new_kijun])));
                     break;
 
             index = index - 1;
@@ -107,10 +107,12 @@ class Ichimoku(object):
 
         return cross_point, cross_value;
 
-    def _calculateCrossPoint(self, points):
-        df = pd.DataFrame();
-        df['TENKAN'] = [points[0], points[2]]
-        df['KINJUN'] = [points[1], points[3]]
+    def _calculateCrossPoint(self, points_left, points_right):
+        points = np.array([points_left[1], points_right[1], points_right[0], points_left[0], points_left[1]]);
+
+        df = pd.DataFrame(points);
+        #df['TENKAN'] = [points[0], points[2]]
+        #df['KINJUN'] = [points[1], points[3]]
         df.plot()
         plt.show()
         inpt = "POLYGON((1.0 " + str(points[0]) + ",2.0 " + str(points[1]) + ",3.0 " + str(points[2]) + ",4.0 " + str(points[3]) + ",1.0 " + str(points[0]) + "))";

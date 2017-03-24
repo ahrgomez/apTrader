@@ -18,7 +18,7 @@ stochRSI = StochRSI.StochRSI(account_id, access_token)
 ichimoku = Ichimoku.Ichimoku(account_id, access_token)
 
 def main():
-	inst = "GBP_USD"
+	inst = "AUD_USD"
 	#for inst in instrumentsManager.instruments:
 	actualPrice =  apiData.GetActualPrice(inst)
 	result = ProcessPrice(inst, actualPrice)
