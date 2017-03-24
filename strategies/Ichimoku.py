@@ -1,11 +1,11 @@
 from lib import ApiData
 
 from datetime import datetime
+from numpy import *
 import numpy as np
 import pandas as pd
 
 import matplotlib.pyplot as plt
-from shapely.wkt import loads as load_wkt
 
 class Ichimoku(object):
 
@@ -93,12 +93,17 @@ class Ichimoku(object):
                     new_tenkan = self.ichimoku_dataframe['TENKAN'].iloc[index]
                     new_kijun = self.ichimoku_dataframe['KIJUN'].iloc[index]
 
-                    #if cross_value == 1:
-                    #points = , ;
-                    #else:
-                    #    points = np.array([tenkan_point, new_kijun, new_tenkan, kijun_point]);
+                    tenkan_line = np.array([tenkan_point, new_tenkan]);
+                    kijun_line = np.array([kijun_point, new_kijun]);
+                    cross_point = self._calculateCrossPoint(tenkan_line, kijun_line)
 
-                    cross_point = self._calculateCrossPoint(np.sort(np.array([tenkan_point, kijun_point])), np.sort(np.array([new_tenkan, new_kijun])));
+                    df = pd.DataFrame();
+                    df['TENKAN'] = tenkan_line;
+                    df['KIJUN'] = kijun_line;
+                    df['CENTROID'] = cross_point;
+
+                    df.plot()
+                    plt.show()
                     break;
 
             index = index - 1;
@@ -107,17 +112,26 @@ class Ichimoku(object):
 
         return cross_point, cross_value;
 
-    def _calculateCrossPoint(self, points_left, points_right):
-        points = np.array([points_left[1], points_right[1], points_right[0], points_left[0], points_left[1]]);
+    def perp(self, a):
+        b = empty_like(a)
+        b[0] = -a[1]
+        b[1] = a[0]
+        return b
 
-        df = pd.DataFrame(points);
-        #df['TENKAN'] = [points[0], points[2]]
-        #df['KINJUN'] = [points[1], points[3]]
-        df.plot()
-        plt.show()
-        inpt = "POLYGON((1.0 " + str(points[0]) + ",2.0 " + str(points[1]) + ",3.0 " + str(points[2]) + ",4.0 " + str(points[3]) + ",1.0 " + str(points[0]) + "))";
-        p1 = load_wkt(inpt);
-        return p1.centroid.coords.xy[1][0];
+    def _calculateCrossPoint(self, line_1, line_2):
+        a1 = np.array([1, line_1[0]])
+        a2 = np.array([2, line_1[1]])
+        b1 = np.array([1, line_2[0]])
+        b2 = np.array([2, line_2[1]])
+
+        da = a2-a1
+        db = b2-b1
+        dp = a1-b1
+        dap = self.perp(da)
+        denom = dot( dap, db)
+        num = dot( dap, dp )
+
+        return ((num / denom.astype(float))*db + b1)[1]
 
     def _getTypeOfCross(self, index, tenkan_point, kijun_point):
         if tenkan_point > kijun_point:
