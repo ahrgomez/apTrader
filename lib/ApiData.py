@@ -37,9 +37,9 @@ class ApiData(object):
 
 			if msg.has_key('candles'):
 				for candle in msg['candles']:
-					data.append({ 'time': candle['time'], 
-						'high': float(candle['mid']['h']), 
-						'low': float(candle['mid']['l']), 
+					data.append({ 'time': candle['time'],
+						'high': float(candle['mid']['h']),
+						'low': float(candle['mid']['l']),
 						'close': float(candle['mid']['c'])})
 
 			return pd.DataFrame(data)
@@ -56,7 +56,7 @@ class ApiData(object):
 			return resp
 		except Exception as e:
 			s.close()
-			print "Caught exception when connecting to stream\n" + str(e) 
+			print "Caught exception when connecting to stream\n" + str(e)
 
 	def GetStreamingData(self, instruments):
 		response = self._connectToStream(instruments)
@@ -116,23 +116,21 @@ class ApiData(object):
 		return return_json
 
 	def GetUnitsForPrice(self, price, instrument, last_close_price, rate = 1):
-		local_currency = "EUR"
-		base_currency = instrument.split('_')[0]
+		local_currency = "EUR";
+		base_currency = instrument.split('_')[0];
 
 		if base_currency == local_currency:
-			return price
+			return price;
 
-		currency_to_check = base_currency + "_" + local_currency
+		currency_to_check = base_currency + "_" + local_currency;
 
-		data = self.GetData(currency_to_check, "H1", 10)
+		data = self.GetData(currency_to_check, "H1", 10);
 
 		if data is None:
-			currency_to_check = local_currency + "_" + base_currency
-			data = self.GetData(currency_to_check, "H1", 10)
+			currency_to_check = local_currency + "_" + base_currency;
+			data = self.GetData(currency_to_check, "H1", 10);
 
-		#actual_price = data.get_value(data.index[len(data)-1], 'close')
-
-		return float(price) * rate / float(last_close_price)
+		return float(price) * rate / float(last_close_price);
 
 	def GetAllInstrumentsTradeable(self):
 

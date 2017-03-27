@@ -4,6 +4,7 @@ from strategies import StochRSI, Ichimoku
 
 import numpy as np
 import uuid
+import json
 from datetime import datetime
 
 access_token = '362c69e15045ab046662317d02837de5-abe03f3f1c7b18419930866fe2bd69b0'
@@ -18,64 +19,44 @@ stochRSI = StochRSI.StochRSI(account_id, access_token)
 ichimoku = Ichimoku.Ichimoku(account_id, access_token)
 
 def main():
-	inst = "EUR_USD"
-	#for inst in instrumentsManager.instruments:
-	actualPrice =  apiData.GetActualPrice(inst)
-	result = ProcessPrice(inst, actualPrice)
-	if result == 1:
-		print inst + "LONG"
-	elif result == -1:
-		print inst + "SHORT"
-	else:
-		print inst + ": NONE"
+	inst = "XAU_EUR"
 
+	for tick in apiData.GetStreamingData([inst]):
+		#tick = json.loads(tick);
+		instrument = tick['instrument'];
+		price = tick['price'];
+
+		result = ProcessPrice(instrument, price);
+
+		if result is None:
+			print instrument + ": " + "NONE"
+		elif result == 1:
+			print instrument + ": " + "LONG"
+		else:
+			print instrument + ": " + "SHORT"
 
 def ProcessPrice(instrument, price):
-	check_result = ichimoku.Verify(instrument, price)
+	check_result, stop_loss_price = ichimoku.Verify(instrument, price)
 
-	if check_result == None:
+	if check_result is None:
 		return
 
-	if check_result > 0:
-		PutBuyOrder(instrument, price)
-	elif check_result < 0:
-		PutSellOrder(instrument, price)
+	PutOrder(check_result, instrument, price, stop_loss_price);
 
 	return check_result
 
-def PutBuyOrder(instrument, price):
+def PutOrder(order_type, instrument, price, stop_loss):
 	if not transactionsManager.transactions.has_key(instrument):
 		date = datetime.now()
-
-		stop_loss = '{0:.6g}'.format(price - (price * 0.005))
-		take_profit = '{0:.6g}'.format(price + (price * 0.01))
-
 		units = apiData.GetUnitsForPrice(50, instrument, price, instrumentsManager.instruments[instrument]['rate'])
-
 		order_id = str(uuid.uuid1())
 
-		result = apiData.MakeMarketOrder(order_id, instrument, date, units, stop_loss)
+		stop_loss = '{0:.6g}'.format(stop_loss)
+		result = apiData.MakeMarketOrder(order_id, instrument, date, order_type * units, stop_loss)
 
 		if result == True:
 			transactionsManager.AddTransaction(instrument, order_id, stop_loss, take_profit)
-			print "Made " + instrument + " buy order with id " + order_id
-
-def PutSellOrder(instrument, price):
-	if not transactionsManager.transactions.has_key(instrument):
-		date = datetime.now()
-
-		stop_loss = '{0:.6g}'.format(price + (price * 0.005))
-		take_profit = '{0:.6g}'.format(price - (price * 0.01))
-
-		units = apiData.GetUnitsForPrice(50, instrument, price, instrumentsManager.instruments[instrument]['rate'])
-
-		order_id = str(uuid.uuid1())
-
-		result = apiData.MakeMarketOrder(order_id, instrument, date, -1 * units, stop_loss)
-
-		if result == True:
-			transactionsManager.AddTransaction(instrument, order_id, stop_loss, take_profit)
-			print "Made " + instrument + " sell order with id " + order_id
+			print "Made " + instrument + " order with id " + order_id + " with " + order_type * units + " units"
 
 if __name__ == "__main__":
     main()
