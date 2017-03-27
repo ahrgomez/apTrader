@@ -149,3 +149,15 @@ class ApiData(object):
 	def GetActualPrice(self, instrument):
 		data = self.GetData(instrument, "M5", 10)
 		return float(data[-1:]['close'])
+
+	def GetTradesOpened(self):
+		url = "https://" + self.domain + "/v3/accounts/"
+		headers = { 'Authorization' : 'Bearer ' + self.access_token }
+		#params = { 'price' : 'M', 'granularity': granularity }
+
+		s = requests.Session()
+		req = requests.Request('GET', url, headers = headers)
+		pre = req.prepare()
+		response = s.send(pre, stream = False, verify = False)
+		print url
+		print response.text

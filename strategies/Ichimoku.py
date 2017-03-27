@@ -28,32 +28,27 @@ class Ichimoku(object):
         last_candles = self.apiData.GetData(instrument, self.granularity, 5)
         last_candle = last_candles.iloc[len(last_candles) - 2];
 
-        print self._isCandleInAValidPosition(last_candle, cross_value)
-
         if self._isCandleInAValidPosition(last_candle, cross_value) == False:
             return None, -1;
 
-        print last_candle;
-        return None, -1;
+        #if minutes < 10:
+        if self._isEquilibriumZone(minutes_of_cross):
+            return None, -1;
 
-        print minutes;
-        if minutes < 35:
-            if self._isEquilibriumZone(minutes):
-                return None, -1;
+        position_into_kumo = self._getPositionOfCross(cross_point, minutes_of_cross);
+        stop_loss_price =  self._getStopLossPrice(cross_value);
 
-            position_into_kumo = self._getPositionOfCross(cross_point, minutes);
-            stop_loss_price =  self._getStopLossPrice(cross_value);
+        print "CV: " + str(cross_value)
+        print "PIK: " + str(position_into_kumo)
 
-            print cross_value
-            print position_into_kumo
-            if cross_value == 1:
-                #LONG
-                if position_into_kumo == 1:
-                    return 1, stop_loss_price;
-            else:
-                #SHORT
-                if position_into_kumo == -1:
-                    return -1, stop_loss_price;
+        if cross_value == 1:
+            #LONG
+            #if position_into_kumo > -1:
+            return 1, stop_loss_price;
+        else:
+            #SHORT
+            #if position_into_kumo < 1:
+            return -1, stop_loss_price;
 
         return None, -1;
 
@@ -101,7 +96,6 @@ class Ichimoku(object):
         if cross_point > self.ichimoku_dataframe['SENKOU_A'].iloc[len(self.ichimoku_dataframe['SENKOU_A'].index) - minutes]:
             if cross_point > self.ichimoku_dataframe['SENKOU_B'].iloc[len(self.ichimoku_dataframe['SENKOU_A'].index) - minutes]:
                 return 1;
-
         if cross_point < self.ichimoku_dataframe['SENKOU_A'].iloc[len(self.ichimoku_dataframe['SENKOU_A'].index) - minutes]:
             if cross_point < self.ichimoku_dataframe['SENKOU_B'].iloc[len(self.ichimoku_dataframe['SENKOU_A'].index) - minutes]:
                 return -1;
@@ -194,9 +188,9 @@ class Ichimoku(object):
 
     def _isEquilibriumZone(self, index):
         actual_value = self.ichimoku_dataframe['KIJUN'].iloc[len(self.ichimoku_dataframe['KIJUN'].index) - index];
-        value_at_3 = self.ichimoku_dataframe['KIJUN'].iloc[len(self.ichimoku_dataframe['KIJUN'].index) - index - 3];
+        value_at_6 = self.ichimoku_dataframe['KIJUN'].iloc[len(self.ichimoku_dataframe['KIJUN'].index) - index - 6];
 
-        if actual_value == value_at_3:
+        if actual_value == value_at_6:
             return True;
         else:
             return False;

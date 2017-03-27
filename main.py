@@ -22,7 +22,6 @@ def main():
 	inst = "XAU_EUR"
 
 	for tick in apiData.GetStreamingData([inst]):
-		#tick = json.loads(tick);
 		instrument = tick['instrument'];
 		price = tick['price'];
 
