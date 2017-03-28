@@ -19,9 +19,7 @@ stochRSI = StochRSI.StochRSI(account_id, access_token)
 ichimoku = Ichimoku.Ichimoku(account_id, access_token)
 
 def main():
-	inst = "XAU_EUR"
-
-	for tick in apiData.GetStreamingData([inst]):
+	for tick in apiData.GetStreamingData("AUD_USD,XAU_EUR,EUR_USD,NZD_USD,EUR_GBP"):
 		instrument = tick['instrument'];
 		price = tick['price'];
 

@@ -151,7 +151,7 @@ class ApiData(object):
 		return float(data[-1:]['close'])
 
 	def GetTradesOpened(self):
-		url = "https://" + self.domain + "/v3/accounts/"
+		url = "https://" + self.domain + "/v3/accounts/" + self.account_id + "/openTrades"
 		headers = { 'Authorization' : 'Bearer ' + self.access_token }
 		#params = { 'price' : 'M', 'granularity': granularity }
 
@@ -159,5 +159,26 @@ class ApiData(object):
 		req = requests.Request('GET', url, headers = headers)
 		pre = req.prepare()
 		response = s.send(pre, stream = False, verify = False)
-		print url
-		print response.text
+		msg = json.loads(response.text);
+
+		if msg.has_key("trades") and len(msg['trades']) > 0:
+			return msg['trades'];
+		else:
+			return [];
+
+	def CloseTradePartially(self, trade, percent):
+		units_to_close = int(float(trade['currentUnits']) * percent);
+
+		if units_to_close == 0:
+			units_to_close = "ALL";
+			
+		url = "https://" + self.domain + "/v3/accounts/" + self.account_id + "/trades/" + trade['id'] + "/close";
+		headers = { 'Authorization' : 'Bearer ' + self.access_token }
+
+		s = requests.Session()
+		req = requests.Request('PUT', url, headers = headers, json={ "units": str(units_to_close) })
+		pre = req.prepare()
+		response = s.send(pre, stream = False, verify = False)
+		msg = json.loads(response.text);
+
+		return response.status_code == 200;

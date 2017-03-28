@@ -7,7 +7,12 @@ account_id = '101-004-5177797-001'
 apiData = ApiData.ApiData(account_id, access_token)
 
 def main():
-    apiData.GetTradesOpened()
-    
+    trades = apiData.GetTradesOpened()
+    for trade in trades:
+        print trade;
+        intrument = trade['instrument'];
+        trade_type = float(trade['initialUnits']) / (float(trade['initialUnits']) * -1);
+        apiData.CloseTradePartially(trade, 0.5);
+
 if __name__ == "__main__":
     main()

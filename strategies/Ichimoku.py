@@ -20,10 +20,29 @@ class Ichimoku(object):
 
         self._calculateIchimokuLines(instrument, actual_price);
 
+        if self._isPriceTopOfKumo(actual_price):
+            last_tenkan = self.ichimoku_dataframe['TENKAN'].iloc[len(self.ichimoku_dataframe['TENKAN'].index) - 1]
+            if self._isPriceTopOfKumo(last_tenkan):
+                cross_point, cross_value, candles_of_cross = self._getLastCross(self.ichimoku_dataframe['PRICE'], self.ichimoku_dataframe['TENKAN']);
+                if cross_value == 1 and candles_of_cross < 6:
+                    last_candles = self.apiData.GetData(instrument, self.granularity, 5)
+                    last_candle = last_candles.iloc[len(last_candles) - 2];
+
+                    if last_candle['high'] > last_tenkan and last_candle['close'] < last_tenkan:
+                        if self._isCandleInAValidPosition(last_candle, cross_value):
+                            stop_loss_price =  self._getStopLossPrice(cross_value);
+                            return 1, stop_loss_price;
+
+        return None, -1;
+
+    def Verify2(self, instrument, actual_price):
+
+        self._calculateIchimokuLines(instrument, actual_price);
+
         if self._isPriceInnerOfKumo(actual_price):
             return None, -1;
 
-        cross_point, cross_value, minutes_of_cross = self._getLastCross();
+        cross_point, cross_value, minutes_of_cross = self._getLastCross(self.ichimoku_dataframe['TENKAN'], self.ichimoku_dataframe['KIJUN']);
 
         last_candles = self.apiData.GetData(instrument, self.granularity, 5)
         last_candle = last_candles.iloc[len(last_candles) - 2];
@@ -65,7 +84,7 @@ class Ichimoku(object):
         self.ichimoku_dataframe['SENKOU_A'] = ((self.ichimoku_dataframe['TENKAN'] + self.ichimoku_dataframe['KIJUN']) / 2).shift(22);
         self.ichimoku_dataframe['SENKOU_B'] = self._calculateMidPoint(dataS5['high'], dataS5['low'], 44).shift(22);
         self.ichimoku_dataframe['CHIKOU'] = dataS5['close'].shift(-22);
-
+        self.ichimoku_dataframe['PRICE'] = dataS5['close'];
         #self.ichimoku_dataframe.plot()
         #plt.show()
 
@@ -108,15 +127,15 @@ class Ichimoku(object):
         else:
             return self.ichimoku_dataframe['SENKOU_B'].iloc[len(self.ichimoku_dataframe['SENKOU_B'].index) - 1]
 
-    def _getLastCross(self):
-        total_index = len(self.ichimoku_dataframe['TENKAN'].index) - 1;
+    def _getLastCross(self, data1, data2):
+        total_index = len(data1.index) - 1;
         index = total_index;
         cross_point = None;
         cross_value = 0;
         actual_value = 0;
 
-        tenkan_point = self.ichimoku_dataframe['TENKAN'].iloc[index];
-        kijun_point = self.ichimoku_dataframe['KIJUN'].iloc[index];
+        tenkan_point = data1.iloc[index];
+        kijun_point = data2.iloc[index];
 
         if tenkan_point > kijun_point:
             actual_value = 1;
@@ -131,8 +150,8 @@ class Ichimoku(object):
                     cross_value = self._getTypeOfCross(index, tenkan_point, kijun_point)
 
                     index = index + 1
-                    new_tenkan = self.ichimoku_dataframe['TENKAN'].iloc[index]
-                    new_kijun = self.ichimoku_dataframe['KIJUN'].iloc[index]
+                    new_tenkan = data1.iloc[index]
+                    new_kijun = data2.iloc[index]
 
                     tenkan_line = np.array([tenkan_point, new_tenkan]);
                     kijun_line = np.array([kijun_point, new_kijun]);
@@ -140,8 +159,8 @@ class Ichimoku(object):
                     break;
 
             index = index - 1;
-            tenkan_point = self.ichimoku_dataframe['TENKAN'].iloc[index];
-            kijun_point = self.ichimoku_dataframe['KIJUN'].iloc[index];
+            tenkan_point = data1.iloc[index];
+            kijun_point = data2.iloc[index];
 
         return cross_point, cross_value, total_index - index + 1;
 
