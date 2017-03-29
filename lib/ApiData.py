@@ -115,20 +115,23 @@ class ApiData(object):
 
 		return return_json
 
-	def GetUnitsForPrice(self, price, instrument, last_close_price, rate = 1):
+	def GetUnitsForPrice(self, price, instrument, rate = 1):
 		local_currency = "EUR";
 		base_currency = instrument.split('_')[0];
 
-		if base_currency == local_currency:
-			return price;
+		if base_currency != local_currency:
+			currency_to_check = base_currency + "_" + local_currency;
 
-		currency_to_check = base_currency + "_" + local_currency;
+			last_close_price = self.GetActualPrice(currency_to_check);
 
-		data = self.GetData(currency_to_check, "H1", 10);
+			if last_close_price is None:
+				currency_to_check = local_currency + "_" + base_currency;
+				last_close_price = self.GetActualPrice(currency_to_check);
+		else:
+			last_close_price = 1;
 
-		if data is None:
-			currency_to_check = local_currency + "_" + base_currency;
-			data = self.GetData(currency_to_check, "H1", 10);
+		if last_close_price is None:
+			return None;
 
 		return float(price) * rate / float(last_close_price);
 
@@ -148,6 +151,8 @@ class ApiData(object):
 
 	def GetActualPrice(self, instrument):
 		data = self.GetData(instrument, "M5", 10)
+		if data is None:
+			return None;
 		return float(data[-1:]['close'])
 
 	def GetTradesOpened(self):
@@ -171,7 +176,7 @@ class ApiData(object):
 
 		if units_to_close == 0:
 			units_to_close = "ALL";
-			
+
 		url = "https://" + self.domain + "/v3/accounts/" + self.account_id + "/trades/" + trade['id'] + "/close";
 		headers = { 'Authorization' : 'Bearer ' + self.access_token }
 

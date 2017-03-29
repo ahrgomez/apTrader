@@ -19,7 +19,13 @@ stochRSI = StochRSI.StochRSI(account_id, access_token)
 ichimoku = Ichimoku.Ichimoku(account_id, access_token)
 
 def main():
-	for tick in apiData.GetStreamingData("AUD_USD,XAU_EUR,EUR_USD,NZD_USD,EUR_GBP"):
+	instruments_list = "";
+	instrumentsManager.GetTradeableInstruments();
+	for inst in instrumentsManager.instruments:
+		instruments_list +=  inst + ","
+	print instruments_list;
+
+	for tick in apiData.GetStreamingData(instruments_list):
 		instrument = tick['instrument'];
 		price = tick['price'];
 
@@ -45,15 +51,20 @@ def ProcessPrice(instrument, price):
 def PutOrder(order_type, instrument, price, stop_loss):
 	if not transactionsManager.transactions.has_key(instrument):
 		date = datetime.now()
-		units = apiData.GetUnitsForPrice(50, instrument, price, instrumentsManager.instruments[instrument]['rate'])
+		units = apiData.GetUnitsForPrice(50, instrument, instrumentsManager.instruments[instrument]['rate']);
+
+		if units is None:
+			print "Can't have units to " + instrument
+			return None;
+
 		order_id = str(uuid.uuid1())
 
 		stop_loss = '{0:.6g}'.format(stop_loss)
 		result = apiData.MakeMarketOrder(order_id, instrument, date, order_type * units, stop_loss)
 
 		if result == True:
-			transactionsManager.AddTransaction(instrument, order_id, stop_loss, take_profit)
-			print "Made " + instrument + " order with id " + order_id + " with " + order_type * units + " units"
+			transactionsManager.AddTransaction(instrument, order_id, stop_loss)
+			print "Made " + instrument + " order with id " + order_id + " with " + str(order_type * units) + " units"
 
 if __name__ == "__main__":
     main()

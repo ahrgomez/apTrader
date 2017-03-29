@@ -11,7 +11,7 @@ class Ichimoku(object):
 
     apiData = {};
     ichimoku_dataframe = pd.DataFrame();
-    granularity = "M1";
+    granularity = "H1";
 
     def __init__(self, api_account_id, api_access_token):
         self.apiData = ApiData.ApiData(api_account_id, api_access_token);
