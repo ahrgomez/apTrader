@@ -38,6 +38,7 @@ class ApiData(object):
 			if msg.has_key('candles'):
 				for candle in msg['candles']:
 					data.append({ 'time': candle['time'],
+						'open': float(candle['mid']['o']),
 						'high': float(candle['mid']['h']),
 						'low': float(candle['mid']['l']),
 						'close': float(candle['mid']['c'])})
@@ -119,21 +120,21 @@ class ApiData(object):
 		local_currency = "EUR";
 		base_currency = instrument.split('_')[0];
 
-		if base_currency != local_currency:
+		if base_currency == local_currency:
+			last_close_price = 1;
+		else:
 			currency_to_check = base_currency + "_" + local_currency;
-
 			last_close_price = self.GetActualPrice(currency_to_check);
 
-			if last_close_price is None:
-				currency_to_check = local_currency + "_" + base_currency;
-				last_close_price = self.GetActualPrice(currency_to_check);
-		else:
-			last_close_price = 1;
-
 		if last_close_price is None:
-			return None;
-
-		return float(price) * rate / float(last_close_price);
+			currency_to_check = local_currency + "_" + base_currency;
+			last_close_price = self.GetActualPrice(currency_to_check);
+			if last_close_price is None:
+				return 0;
+			else:
+				return float(price) * rate / float(last_close_price);
+		else:
+			return float(price) * rate / float(last_close_price);
 
 	def GetAllInstrumentsTradeable(self):
 
@@ -154,6 +155,12 @@ class ApiData(object):
 		if data is None:
 			return None;
 		return float(data[-1:]['close'])
+
+	def GetLastCandle(self, instrument, granularity):
+		data = self.GetData(instrument, granularity, 10)
+		if data is None:
+			return None;
+		return data[-1:];
 
 	def GetTradesOpened(self):
 		url = "https://" + self.domain + "/v3/accounts/" + self.account_id + "/openTrades"
@@ -187,3 +194,30 @@ class ApiData(object):
 		msg = json.loads(response.text);
 
 		return response.status_code == 200;
+
+	def GetCurrencyChage(self, instrument):
+		local_currency = "EUR";
+		base_currency = instrument.split('_')[0];
+
+		if base_currency == local_currency:
+			last_close_price = 1;
+		else:
+			currency_to_check = base_currency + "_" + local_currency;
+			last_close_price = self.GetActualPrice(currency_to_check);
+
+		if last_close_price is None:
+			currency_to_check = local_currency + "_" + base_currency;
+			last_close_price = self.GetActualPrice(currency_to_check);
+
+			if last_close_price is None:
+				return 0;
+		print currency_to_check;
+		return last_close_price;
+
+	def GetPipValue(self, instrument, units):
+		currency_change_price = self.GetCurrencyChage(instrument);
+		print "CC: " + str(currency_change_price);
+		if currency_change_price == 0:
+			return 0;
+		else:
+			return (0.0001 * units) / currency_change_price;

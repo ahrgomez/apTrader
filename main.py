@@ -22,21 +22,24 @@ def main():
 	instruments_list = "";
 	instrumentsManager.GetTradeableInstruments();
 	for inst in instrumentsManager.instruments:
-		instruments_list +=  inst + ","
-	print instruments_list;
+		instruments_list +=  inst + ",";
 
-	for tick in apiData.GetStreamingData(instruments_list):
-		instrument = tick['instrument'];
-		price = tick['price'];
+	while(True):
+		try:
+			for tick in apiData.GetStreamingData(instruments_list):
+				instrument = tick['instrument'];
+				price = tick['price'];
 
-		result = ProcessPrice(instrument, price);
+				result = ProcessPrice(instrument, price);
 
-		if result is None:
-			print instrument + ": " + "NONE"
-		elif result == 1:
-			print instrument + ": " + "LONG"
-		else:
-			print instrument + ": " + "SHORT"
+				if result is None:
+					print instrument + ": " + "NONE"
+				elif result == 1:
+					print instrument + ": " + "LONG"
+				else:
+					print instrument + ": " + "SHORT"
+		except:
+			pass;
 
 def ProcessPrice(instrument, price):
 	check_result, stop_loss_price = ichimoku.Verify(instrument, price)

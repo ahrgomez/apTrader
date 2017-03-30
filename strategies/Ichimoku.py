@@ -28,7 +28,7 @@ class Ichimoku(object):
                     last_candles = self.apiData.GetData(instrument, self.granularity, 5)
                     last_candle = last_candles.iloc[len(last_candles) - 2];
 
-                    if last_candle['high'] > last_tenkan and last_candle['close'] < last_tenkan:
+                    if last_candle['open'] < last_tenkan and last_candle['close'] > last_tenkan:
                         if self._isCandleInAValidPosition(last_candle, cross_value):
                             stop_loss_price =  self._getStopLossPrice(cross_value);
                             return 1, stop_loss_price;
@@ -232,3 +232,18 @@ class Ichimoku(object):
         midPoint = (maxHigh + maxLow) / 2;
 
         return midPoint;
+
+    def CheckTotalClose(self, trade_type, instrument, last_candle):
+        actual_price = self.apiData.GetActualPrice(instrument);
+        self._calculateIchimokuLines(instrument, actual_price);
+
+        if trade_type == 1:
+            if self.ichimoku_dataframe['TENKAN'].iloc[len(self.ichimoku_dataframe['TENKAN'].index) - 1] > float(last_candle['open']):
+                if self.ichimoku_dataframe['TENKAN'].iloc[len(self.ichimoku_dataframe['TENKAN'].index) - 1] > float(last_candle['close']):
+                    return True;
+        else:
+            if self.ichimoku_dataframe['TENKAN'].iloc[len(self.ichimoku_dataframe['TENKAN'].index) - 1] < float(last_candle['open']):
+                if self.ichimoku_dataframe['TENKAN'].iloc[len(self.ichimoku_dataframe['TENKAN'].index) - 1] < float(last_candle['close']):
+                    return True;
+
+        return False;
