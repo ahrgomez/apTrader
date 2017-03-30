@@ -8,22 +8,19 @@ apiData = ApiData.ApiData(account_id, access_token)
 instrumentsManager = InstrumentsManager.InstrumentsManager({}, account_id, access_token)
 
 def main():
-	instrumentsManager.GetTradeableInstruments()
-	print apiData.GetUnitsForPrice(50, "EUR_GBP", instrumentsManager.instruments["EUR_GBP"]['rate'])
+	trades = apiData.GetTradesOpened()
+	for trade in trades:
+		if trade['instrument'] == 'EUR_GBP':
+			apiData.ModifyStopLoss(trade['stopLossOrder']['id'], trade['id'], trade['price']);
+	#instrumentsManager.GetTradeableInstruments();
 	#GetTradeableInstruments()
 	#for inst in instrumentsManager.transactions:
 	#	print inst + ": " + str(instrumentsManager.transactions[inst])
 
 def GetTradeableInstruments():
 	for instrument in apiData.GetAllInstrumentsTradeable()['instruments']:
-		instrumentsManager.Add(instrument['name'], instrument
-			#{
-				#'min': instrument['minimumTradeSize'],
-				#'precision': instrument['displayPrecision'],
-				#'rate': int(1 / float(instrument['marginRate'])),
-				#'max': instrument['maximumOrderUnits']
-			#}
-		)
+		print instrument;
+		print instrumentsManager.instruments[instruments];
 
 if __name__ == "__main__":
     main()

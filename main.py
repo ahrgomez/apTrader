@@ -38,6 +38,8 @@ def main():
 					print instrument + ": " + "LONG"
 				else:
 					print instrument + ": " + "SHORT"
+		except KeyboardInterrupt:
+			break;
 		except:
 			pass;
 

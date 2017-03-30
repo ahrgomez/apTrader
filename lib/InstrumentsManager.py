@@ -18,11 +18,12 @@ class InstrumentsManager(object):
 
     def GetTradeableInstruments(self):
     	for instrument in self.apiData.GetAllInstrumentsTradeable()['instruments']:
-    		self.Add(instrument['name'],
-    			{
-    				'min': instrument['minimumTradeSize'],
-    				'precision': instrument['displayPrecision'],
-    				'rate': int(1 / float(instrument['marginRate'])),
-    				'max': instrument['maximumOrderUnits']
-    			}
-    		)
+            if instrument['type'] != 'METAL':
+        		self.Add(instrument['name'],
+        			{
+        				'min': instrument['minimumTradeSize'],
+        				'precision': instrument['displayPrecision'],
+        				'rate': int(1 / float(instrument['marginRate'])),
+        				'max': instrument['maximumOrderUnits']
+        			}
+        		)

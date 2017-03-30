@@ -4,6 +4,8 @@ requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
 import pandas as pd
 import json
+from bs4 import BeautifulSoup
+import re
 
 class ApiData(object):
 
@@ -99,7 +101,7 @@ class ApiData(object):
 		order_position_fill = "DEFAULT"
 
 		client_extension = {}
-		client_extension['id'] = "d5f687eb-f220-11e6-88e4-6c4008b00e3c"
+		client_extension['id'] = order_id
 		client_extension['tag'] = instrument + "_" + str(datetime)
 		client_extension['comment'] = instrument + "_" + str(datetime)
 
@@ -124,17 +126,9 @@ class ApiData(object):
 			last_close_price = 1;
 		else:
 			currency_to_check = base_currency + "_" + local_currency;
-			last_close_price = self.GetActualPrice(currency_to_check);
+			last_close_price = self.GetConvertPriceCurrencyWithGoogle(local_currency, base_currency)
 
-		if last_close_price is None:
-			currency_to_check = local_currency + "_" + base_currency;
-			last_close_price = self.GetActualPrice(currency_to_check);
-			if last_close_price is None:
-				return 0;
-			else:
-				return float(price) * rate / float(last_close_price);
-		else:
-			return float(price) * rate / float(last_close_price);
+		return float(price) * rate / float(last_close_price);
 
 	def GetAllInstrumentsTradeable(self):
 
@@ -180,6 +174,8 @@ class ApiData(object):
 
 	def CloseTradePartially(self, trade, percent):
 		units_to_close = int(float(trade['currentUnits']) * percent);
+		if units_to_close < 0:
+			units_to_close = units_to_close * -1;
 
 		if units_to_close == 0:
 			units_to_close = "ALL";
@@ -193,31 +189,75 @@ class ApiData(object):
 		response = s.send(pre, stream = False, verify = False)
 		msg = json.loads(response.text);
 
+		if response.status_code != 200:
+			print str(units_to_close);
+			print msg;
+
 		return response.status_code == 200;
 
-	def GetCurrencyChage(self, instrument):
+	def GetCurrencyChange(self, instrument):
 		local_currency = "EUR";
-		base_currency = instrument.split('_')[0];
+		base_currency = instrument.split('_')[1];
 
 		if base_currency == local_currency:
 			last_close_price = 1;
 		else:
 			currency_to_check = base_currency + "_" + local_currency;
-			last_close_price = self.GetActualPrice(currency_to_check);
+			last_close_price = self.GetConvertPriceCurrencyWithGoogle(local_currency, base_currency)
 
-		if last_close_price is None:
-			currency_to_check = local_currency + "_" + base_currency;
-			last_close_price = self.GetActualPrice(currency_to_check);
-
-			if last_close_price is None:
-				return 0;
-		print currency_to_check;
 		return last_close_price;
 
+	def GetConvertPriceCurrencyWithGoogle(self, currency_A, currency_B):
+		url = "https://www.google.com/finance/converter?a=1&from=" + currency_A + "&to=" + currency_B
+		s = requests.Session()
+		req = requests.Request('GET', url)
+		pre = req.prepare()
+		response = s.send(pre, stream = False, verify = False)
+		soup = BeautifulSoup(response.text, 'html.parser')
+		span = soup.find("span", attrs = {"class":"bld"});
+		data = span.get_text()
+		r = re.compile("[0-9\.]")
+		price = "";
+		for v in r.findall(data):
+			price += v;
+
+		return float(price);
+
 	def GetPipValue(self, instrument, units):
-		currency_change_price = self.GetCurrencyChage(instrument);
-		print "CC: " + str(currency_change_price);
+		if units < 0:
+			units = units * -1;
+
+		currency_change_price = self.GetCurrencyChange(instrument);
+
 		if currency_change_price == 0:
 			return 0;
 		else:
 			return (0.0001 * units) / currency_change_price;
+
+	def ModifyStopLoss(self, trade_id, stop_loss_id, new_stop_loss):
+		url = "https://" + self.domain + "/v3/accounts/" + self.account_id + "/orders/" + trade_id;
+		headers = { 'Authorization' : 'Bearer ' + self.access_token }
+
+		s = requests.Session()
+		req = requests.Request('PUT', url, headers = headers, json={'order': self._getStopLossOrderBody(stop_loss_id, new_stop_loss)});
+		pre = req.prepare()
+		response = s.send(pre, stream = False, verify = False)
+		msg = json.loads(response.text);
+		
+		if response.status_code != 200:
+			print msg;
+
+		return msg;
+	def _getStopLossOrderBody(self, trade_id, new_stop_loss):
+		order_type = "STOP_LOSS"
+		order_time_in_force = "GTC"
+		trade_id = trade_id;
+		new_price = new_stop_loss;
+
+		return_json = {};
+		return_json['type'] = order_type;
+		return_json['tradeID'] = trade_id;
+		return_json['price'] = new_price;
+		return_json['timeInForce'] = order_time_in_force;
+
+		return return_json;

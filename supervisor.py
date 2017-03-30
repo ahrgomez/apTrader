@@ -14,15 +14,20 @@ def main():
         print "----------------"
         InitProcess();
         print "----------------"
-        print "Waiting 60 seconds..."
-        sleep(60);
+        print "Waiting 15 seconds..."
+        sleep(15);
 
 def InitProcess():
     trades = apiData.GetTradesOpened()
     for trade in trades:
 
         instrument = trade['instrument'];
-        trade_type = float(trade['initialUnits']) / (float(trade['initialUnits']) * -1);
+
+        if float(trade['initialUnits']) < 0:
+            trade_type = -1;
+        else:
+            trade_type = 1;
+
         partially_closed = False;
 
         if float(trade['initialUnits']) < 0:
@@ -38,10 +43,31 @@ def CheckToCloseTrade(trade, instrument, trade_type, partially_closed):
         if CheckTotalClose(trade, trade_type):
             print instrument + " A CERRAR DEL TODO";
             apiData.CloseTradePartially(trade, 0);
+        else:
+            actual_price = float(apiData.GetActualPrice(trade['instrument']));
+            stop_loss_price = float(trade['stopLossOrder']['price']);
+            begining_price = float(trade['price']);
+
+            if begining_price == stop_loss_price:
+                if trade_type == 1:
+                    bigger_item = actual_price;
+                    lower_item = stop_loss_price;
+                else:
+                    bigger_item = stop_loss_price;
+                    lower_item = actual_price;
+
+                bi_decimals = bigger_item - int(bigger_item);
+                li_decimals = lower_item - int(lower_item);
+
+                if bi_decimals / li_decimals >= 1:
+                    new_stop_loss = lower_item + ((bi_decimals - li_decimals) / 2);
+                    apiData.ModifyStopLoss(trade['stopLossOrder']['id'], trade['id'], new_stop_loss);
+                    print "Upload stop loss from " + instrument + " to " + str(new_stop_loss);
     else:
         if CheckPartialClose(trade, trade_type):
             print instrument + " A CERRAR A MITAD";
             apiData.CloseTradePartially(trade, 0.5);
+            apiData.ModifyStopLoss(trade['stopLossOrder']['id'], trade['id'], trade['price']);
 
 
 def CheckTotalClose(trade, trade_type):
@@ -52,18 +78,7 @@ def CheckTotalClose(trade, trade_type):
         return ichimoku.CheckTotalClose(trade_type, trade['instrument'], last_candle);
 
 def CheckPartialClose(trade, trade_type):
-    pip_value = apiData.GetPipValue(trade['instrument'], float(trade['initialUnits']));
-    print trade['instrument']
-    print pip_value
-    print trade
-    print "-------------"
-    if trade_type == 1:
-        if (float(trade['unrealizedPL']) / pip_value) > 60:
-            return False;
-    else:
-        if (float(trade['unrealizedPL']) / pip_value) < -60:
-            return False;
-    return False;
+    return ichimoku.CheckPartialClose(trade_type, trade['instrument'], float(trade['initialUnits']), float(trade['unrealizedPL']));
 
 if __name__ == "__main__":
     main()

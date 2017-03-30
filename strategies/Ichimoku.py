@@ -20,6 +20,7 @@ class Ichimoku(object):
 
         self._calculateIchimokuLines(instrument, actual_price);
 
+        #LONG
         if self._isPriceTopOfKumo(actual_price):
             last_tenkan = self.ichimoku_dataframe['TENKAN'].iloc[len(self.ichimoku_dataframe['TENKAN'].index) - 1]
             if self._isPriceTopOfKumo(last_tenkan):
@@ -32,7 +33,18 @@ class Ichimoku(object):
                         if self._isCandleInAValidPosition(last_candle, cross_value):
                             stop_loss_price =  self._getStopLossPrice(cross_value);
                             return 1, stop_loss_price;
+        elif self._isPriceBottomOfKumo(actual_price):
+            last_tenkan = self.ichimoku_dataframe['TENKAN'].iloc[len(self.ichimoku_dataframe['TENKAN'].index) - 1]
+            if self._isPriceBottomOfKumo(last_tenkan):
+                cross_point, cross_value, candles_of_cross = self._getLastCross(self.ichimoku_dataframe['PRICE'], self.ichimoku_dataframe['TENKAN']);
+                if cross_value == -1 and candles_of_cross < 6:
+                    last_candles = self.apiData.GetData(instrument, self.granularity, 5)
+                    last_candle = last_candles.iloc[len(last_candles) - 2];
 
+                    if last_candle['open'] > last_tenkan and last_candle['close'] < last_tenkan:
+                        if self._isCandleInAValidPosition(last_candle, cross_value):
+                            stop_loss_price =  self._getStopLossPrice(cross_value);
+                            return -1, stop_loss_price;
         return None, -1;
 
     def Verify2(self, instrument, actual_price):
@@ -56,9 +68,6 @@ class Ichimoku(object):
 
         position_into_kumo = self._getPositionOfCross(cross_point, minutes_of_cross);
         stop_loss_price =  self._getStopLossPrice(cross_value);
-
-        print "CV: " + str(cross_value)
-        print "PIK: " + str(position_into_kumo)
 
         if cross_value == 1:
             #LONG
@@ -232,6 +241,19 @@ class Ichimoku(object):
         midPoint = (maxHigh + maxLow) / 2;
 
         return midPoint;
+
+    def CheckPartialClose(self, trade_type, instrument, initial_units, actual_value):
+        pip_value = self.apiData.GetPipValue(instrument, initial_units);
+
+        if pip_value == 0:
+            return False;
+
+        actual_pip_value = actual_value / pip_value;
+
+        if actual_pip_value >= 15:
+            return True;
+
+        return False;
 
     def CheckTotalClose(self, trade_type, instrument, last_candle):
         actual_price = self.apiData.GetActualPrice(instrument);
