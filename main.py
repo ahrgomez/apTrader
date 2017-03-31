@@ -1,6 +1,7 @@
 
 from lib import ApiData, InstrumentsManager
 from strategies import Ichimoku
+from raven import Client
 
 import numpy as np
 import uuid
@@ -12,6 +13,7 @@ account_id = '101-004-5177797-001'
 
 apiData = ApiData.ApiData(account_id, access_token)
 instrumentsManager = InstrumentsManager.InstrumentsManager({}, account_id, access_token)
+errorsManagement = Client('https://7932a7da676c4962895957059416bd7d:da9a1669ee724bb2b61cf7b47b430ccc@sentry.io/154029')
 
 #Strategies
 ichimoku = Ichimoku.Ichimoku(account_id, access_token)
@@ -39,6 +41,7 @@ def main():
 		except KeyboardInterrupt:
 			break;
 		except:
+			errorsManagement.captureException();
 			pass;
 
 def ProcessPrice(instrument, price):

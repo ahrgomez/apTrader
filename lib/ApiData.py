@@ -31,7 +31,7 @@ class ApiData(object):
 		response = s.send(pre, stream = False, verify = False)
 
 		if response.status_code != 200:
-			return None
+			raise Exception('GetData: Instrument:' + instrument + ' Response:' + response.text)
 		else:
 			msg = json.loads(response.text)
 
@@ -65,7 +65,7 @@ class ApiData(object):
 	def GetStreamingData(self, instruments):
 		response = self._connectToStream(instruments)
 		if response.status_code != 200:
-			return
+			raise Exception('GetStreamingData: ' + response.text)
 		for line in response.iter_lines(1):
 			msg = json.loads(line)
 
@@ -88,6 +88,9 @@ class ApiData(object):
 
 		pre = req.prepare()
 		response = s.send(pre, stream = False, verify = False)
+
+		if response.status_code != 200:
+			raise Exception('MakeMarketOrder: Instrument: ' + instrument + ' units: ' + str(units) + ' stop_loss: ' + str(stop_loss) + ' Response: ' + response.text)
 
 		msg = json.loads(response.text)
 
@@ -142,6 +145,9 @@ class ApiData(object):
 		pre = req.prepare()
 		response = s.send(pre, stream = False, verify = False)
 
+		if response.status_code != 200:
+			raise Exception('GetAllInstrumentsTradeable: ' + response.text)
+
 		msg = json.loads(response.text)
 		return msg
 
@@ -166,6 +172,10 @@ class ApiData(object):
 		req = requests.Request('GET', url, headers = headers)
 		pre = req.prepare()
 		response = s.send(pre, stream = False, verify = False)
+
+		if response.status_code != 200:
+			raise Exception('GetTradesOpened: ' + response.text)
+
 		msg = json.loads(response.text);
 
 		if msg.has_key("trades") and len(msg['trades']) > 0:
@@ -188,6 +198,10 @@ class ApiData(object):
 		req = requests.Request('PUT', url, headers = headers, json={ "units": str(units_to_close) })
 		pre = req.prepare()
 		response = s.send(pre, stream = False, verify = False)
+
+		if response.status_code != 200:
+			raise Exception('CloseTradePartially: Instrument: ' + trade['instrument'] + ' Percent: ' + str(percent) + ' Response: ' + response.text)
+
 		msg = json.loads(response.text);
 
 		if response.status_code != 200:
@@ -213,7 +227,11 @@ class ApiData(object):
 		s = requests.Session()
 		req = requests.Request('GET', url)
 		pre = req.prepare()
-		response = s.send(pre, stream = False, verify = False)
+		response = s.send(pre, stream = False, verify = False
+
+		if response.status_code != 200:
+			raise Exception('GetConvertPriceCurrencyWithGoogle: ' + response.text)
+
 		soup = BeautifulSoup(response.text, 'html.parser')
 		span = soup.find("span", attrs = {"class":"bld"});
 		data = span.get_text()
@@ -246,7 +264,7 @@ class ApiData(object):
 		msg = json.loads(response.text);
 
 		if response.status_code != 200:
-			print msg;
+			raise Exception('ModifyStopLoss: ' + response.text)
 
 		return msg;
 	def _getStopLossOrderBody(self, trade_id, new_stop_loss):
@@ -285,6 +303,10 @@ class ApiData(object):
 		req = requests.Request('GET', url, headers = headers)
 		pre = req.prepare()
 		response = s.send(pre, stream = False, verify = False)
+
+		if response.status_code != 200:
+			raise Exception('ExistsTradeOfInstrument: ' + response.text)
+
 		msg = json.loads(response.text);
 
 		if msg.has_key("trades") and len(msg['trades']) > 0:
@@ -302,6 +324,10 @@ class ApiData(object):
 		req = requests.Request('GET', url, headers = headers, params = params)
 		pre = req.prepare()
 		response = s.send(pre, stream = False, verify = False)
+
+		if response.status_code != 200:
+			raise Exception('GetClosedTrades: ' + response.text)
+
 		msg = json.loads(response.text);
 
 		return msg['trades'];
