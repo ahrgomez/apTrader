@@ -15,7 +15,10 @@ def main():
             print "----------------"
             InitProcess();
             print "----------------"
-        except:
+        except KeyboardInterrupt:
+			break;
+        except e:
+            print e
             pass;
 
 def InitProcess():
