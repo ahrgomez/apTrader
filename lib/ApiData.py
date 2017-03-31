@@ -90,7 +90,7 @@ class ApiData(object):
 		pre = req.prepare()
 		response = s.send(pre, stream = False, verify = False)
 
-		if response.status_code != 200:
+		if response.status_code != 201:
 			raise Exception('MakeMarketOrder: Instrument: ' + instrument + ' units: ' + str(units) + ' stop_loss: ' + str(stop_loss) + ' Response: ' + response.text)
 
 		msg = json.loads(response.text)
