@@ -10,10 +10,13 @@ ichimoku = Ichimoku.Ichimoku(account_id, access_token)
 
 def main():
     while(True):
-        print "Init supervisor"
-        print "----------------"
-        InitProcess();
-        print "----------------"
+        try:
+            print "Init supervisor"
+            print "----------------"
+            InitProcess();
+            print "----------------"
+        except:
+            pass;
 
 def InitProcess():
     trades = apiData.GetTradesOpened()
