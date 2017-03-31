@@ -18,7 +18,7 @@ class InstrumentsManager(object):
 
     def GetTradeableInstruments(self):
     	for instrument in self.apiData.GetAllInstrumentsTradeable()['instruments']:
-            if instrument['type'] != 'METAL' and instrument != 'USD_SAR':
+            if instrument['type'] != 'METAL' and instrument['name'] != 'USD_SAR':
         		self.Add(instrument['name'],
         			{
         				'min': instrument['minimumTradeSize'],
