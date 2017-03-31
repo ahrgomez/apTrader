@@ -1,6 +1,6 @@
 
 from lib import ApiData, InstrumentsManager
-from strategies import StochRSI, Ichimoku
+from strategies Ichimoku
 
 import numpy as np
 import uuid
@@ -14,7 +14,6 @@ apiData = ApiData.ApiData(account_id, access_token)
 instrumentsManager = InstrumentsManager.InstrumentsManager({}, account_id, access_token)
 
 #Strategies
-stochRSI = StochRSI.StochRSI(account_id, access_token)
 ichimoku = Ichimoku.Ichimoku(account_id, access_token)
 
 def main():
