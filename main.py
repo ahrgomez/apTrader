@@ -1,6 +1,6 @@
 
 from lib import ApiData, InstrumentsManager
-from strategies Ichimoku
+from strategies import Ichimoku
 
 import numpy as np
 import uuid
