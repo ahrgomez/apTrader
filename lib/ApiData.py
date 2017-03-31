@@ -263,7 +263,7 @@ class ApiData(object):
 		response = s.send(pre, stream = False, verify = False)
 		msg = json.loads(response.text);
 
-		if response.status_code != 200:
+		if response.status_code != 201:
 			raise Exception('ModifyStopLoss: ' + response.text)
 
 		return msg;
