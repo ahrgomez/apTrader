@@ -78,7 +78,7 @@ class ApiData(object):
 		return None
 
 	def MakeMarketOrder(self, order_id, instrument, datetime, units, stop_loss):
-		order = self.GetMarketOrderBody(order_id, instrument, datetime, float(units), stop_loss)
+		order = self.GetMarketOrderBody(order_id, instrument, datetime, units, stop_loss)
 
 		url = "https://" + self.domain + "/v3/accounts/" + self.account_id + "/orders"
 		headers = { 'Authorization' : 'Bearer ' + self.access_token }
