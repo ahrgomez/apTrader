@@ -27,3 +27,6 @@ class InstrumentsManager(object):
         				'max': instrument['maximumOrderUnits']
         			}
         		)
+
+    def GetPrecision(self, instrument):
+        return self.instruments[instrument]['precision'];

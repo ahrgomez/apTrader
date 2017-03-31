@@ -1,4 +1,5 @@
 import requests
+
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
@@ -9,10 +10,10 @@ import re
 
 class ApiData(object):
 
-	access_token = ""
-	domain = ""
-	streaming_domain = ""
-	account_id = ""
+	access_token = "";
+	domain = "";
+	streaming_domain = "";
+	account_id = "";
 
 	def __init__(self, account_id, access_token):
 		self.account_id = account_id
@@ -122,7 +123,7 @@ class ApiData(object):
 
 		return return_json
 
-	def GetUnitsForPrice(self, price, instrument, rate = 1):
+	def GetUnitsForPrice(self, price, instrument, precision, rate = 1):
 		local_currency = "EUR";
 		base_currency = instrument.split('_')[0];
 
@@ -132,7 +133,18 @@ class ApiData(object):
 			currency_to_check = base_currency + "_" + local_currency;
 			last_close_price = self.GetConvertPriceCurrencyWithGoogle(local_currency, base_currency)
 
-		return float(price) * rate / float(last_close_price);
+		units =  float(price) * rate / float(last_close_price);
+		units = self.truncate(units, int(precision));
+
+		return units;
+
+	def truncate(self, f, n):
+		s = '%.12f'%f;
+		i, p, d = s.partition('.');
+		length = len(str(i));
+		n = length - n
+		print f;
+		return '.'.join([i, (d+'0'*n)[:-n]]);
 
 	def GetAllInstrumentsTradeable(self):
 

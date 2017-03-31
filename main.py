@@ -65,7 +65,7 @@ def ProcessPrice(instrument, price):
 def PutOrder(order_type, instrument, price, stop_loss):
 	if not apiData.ExistsTradeOfInstrument(instrument):
 		date = datetime.now()
-		units = apiData.GetUnitsForPrice(50, instrument, instrumentsManager.instruments[instrument]['rate']);
+		units = apiData.GetUnitsForPrice(50, instrument, instrumentsManager.instruments[instrument]['precision'], instrumentsManager.instruments[instrument]['rate']);
 
 		if units is None:
 			print "Can't have units to " + instrument
