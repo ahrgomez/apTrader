@@ -227,11 +227,11 @@ class ApiData(object):
 		s = requests.Session()
 		req = requests.Request('GET', url)
 		pre = req.prepare()
-		response = s.send(pre, stream = False, verify = False
+		response = s.send(pre, stream = False, verify = False)
 
 		if response.status_code != 200:
 			raise Exception('GetConvertPriceCurrencyWithGoogle: ' + response.text)
-
+			
 		soup = BeautifulSoup(response.text, 'html.parser')
 		span = soup.find("span", attrs = {"class":"bld"});
 		data = span.get_text()
