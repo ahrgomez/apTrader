@@ -30,6 +30,13 @@ def main():
 				instrument = tick['instrument'];
 				price = tick['price'];
 
+				instrument_part_A = instrument.split('_')[0];
+				instrument_part_A = instrument_part_A.encode('ascii','ignore');
+				instrument_part_B = instrument.split('_')[1];
+				instrument_part_B = instrument_part_B.encode('ascii','ignore');
+
+				instrument = instrument_part_A + '_' + instrument_part_B;
+
 				result = ProcessPrice(instrument, price);
 
 				if result is None:
@@ -67,7 +74,7 @@ def PutOrder(order_type, instrument, price, stop_loss):
 		order_id = str(uuid.uuid1())
 
 		stop_loss = '{0:.6g}'.format(stop_loss)
-		
+
 		total_units = order_type * units;
 		total_units = '{0:.6g}'.format(total_units)
 
