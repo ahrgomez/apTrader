@@ -141,10 +141,11 @@ class ApiData(object):
 	def truncate(self, f, n):
 		s = '%.12f'%f;
 		i, p, d = s.partition('.');
-		length = len(str(i));
-		n = length - n
-		print f;
-		return '.'.join([i, (d+'0'*n)[:-n]]);
+
+		if n == 0:
+			return i;
+		else:
+			return '.'.join([i, (d+'0'*n)[:-n]]);
 
 	def GetAllInstrumentsTradeable(self):
 

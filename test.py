@@ -8,7 +8,7 @@ instrumentsManager = InstrumentsManager.InstrumentsManager({}, account_id, acces
 
 def main():
     instrumentsManager.GetTradeableInstruments();
-    instrument = "EUR_USD"
+    instrument = "USD_SAR"
     print apiData.GetUnitsForPrice(12.9057, instrument, instrumentsManager.instruments[instrument]['precision'], instrumentsManager.instruments[instrument]['rate']);
 
 if __name__ == "__main__":
