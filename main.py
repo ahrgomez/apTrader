@@ -1,5 +1,5 @@
 
-from lib import ApiData, TransactionsManager, InstrumentsManager
+from lib import ApiData, InstrumentsManager
 from strategies import StochRSI, Ichimoku
 
 import numpy as np
@@ -11,7 +11,6 @@ access_token = '362c69e15045ab046662317d02837de5-abe03f3f1c7b18419930866fe2bd69b
 account_id = '101-004-5177797-001'
 
 apiData = ApiData.ApiData(account_id, access_token)
-transactionsManager = TransactionsManager.TransactionsManager()
 instrumentsManager = InstrumentsManager.InstrumentsManager({}, account_id, access_token)
 
 #Strategies
@@ -54,7 +53,7 @@ def ProcessPrice(instrument, price):
 	return check_result
 
 def PutOrder(order_type, instrument, price, stop_loss):
-	if not transactionsManager.transactions.has_key(instrument):
+	if not apiData.ExistsTradeOfInstrument(instrument):
 		date = datetime.now()
 		units = apiData.GetUnitsForPrice(50, instrument, instrumentsManager.instruments[instrument]['rate']);
 
@@ -68,7 +67,6 @@ def PutOrder(order_type, instrument, price, stop_loss):
 		result = apiData.MakeMarketOrder(order_id, instrument, date, order_type * units, stop_loss)
 
 		if result == True:
-			transactionsManager.AddTransaction(instrument, order_id, stop_loss)
 			print "Made " + instrument + " order with id " + order_id + " with " + str(order_type * units) + " units"
 
 if __name__ == "__main__":

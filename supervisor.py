@@ -14,8 +14,6 @@ def main():
         print "----------------"
         InitProcess();
         print "----------------"
-        print "Waiting 15 seconds..."
-        sleep(15);
 
 def InitProcess():
     trades = apiData.GetTradesOpened()
@@ -48,21 +46,29 @@ def CheckToCloseTrade(trade, instrument, trade_type, partially_closed):
             stop_loss_price = float(trade['stopLossOrder']['price']);
             begining_price = float(trade['price']);
 
-            if begining_price == stop_loss_price:
-                if trade_type == 1:
-                    bigger_item = actual_price;
-                    lower_item = stop_loss_price;
+            if trade_type == 1:
+                if begining_price > stop_loss_price:
+                    return;
                 else:
-                    bigger_item = stop_loss_price;
-                    lower_item = actual_price;
+                    last_candle = apiData.GetLastClosedCandle(instrument, "H1")
+                    if stop_loss_price >= last_candle['low']:
+                        return;
+                    else:
+                        new_stop_loss = last_candle['low'];
+            elif trade_type == -1:
+                if begining_price < stop_loss_price:
+                    return;
+                else:
+                    last_candle = apiData.GetLastClosedCandle(instrument, "H1")
+                    if stop_loss_price <= last_candle['high']:
+                        return;
+                    else:
+                        new_stop_loss = last_candle['high'];
 
-                bi_decimals = bigger_item - int(bigger_item);
-                li_decimals = lower_item - int(lower_item);
-
-                if bi_decimals / li_decimals >= 1:
-                    new_stop_loss = lower_item + ((bi_decimals - li_decimals) / 2);
-                    apiData.ModifyStopLoss(trade['stopLossOrder']['id'], trade['id'], new_stop_loss);
-                    print "Upload stop loss from " + instrument + " to " + str(new_stop_loss);
+            new_stop_loss = float('{0:.6g}'.format(new_stop_loss))
+            print new_stop_loss
+            apiData.ModifyStopLoss(trade['stopLossOrder']['id'], trade['id'], str(new_stop_loss));
+            print "Upload stop loss from " + instrument + " to " + str(new_stop_loss);
     else:
         if CheckPartialClose(trade, trade_type):
             print instrument + " A CERRAR A MITAD";
@@ -71,7 +77,7 @@ def CheckToCloseTrade(trade, instrument, trade_type, partially_closed):
 
 
 def CheckTotalClose(trade, trade_type):
-    last_candle = apiData.GetLastCandle(trade['instrument'], "H1");
+    last_candle = apiData.GetLastClosedCandle(trade['instrument'], "H1");
     if last_candle is None:
         return False;
     else:

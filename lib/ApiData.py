@@ -43,7 +43,8 @@ class ApiData(object):
 						'open': float(candle['mid']['o']),
 						'high': float(candle['mid']['h']),
 						'low': float(candle['mid']['l']),
-						'close': float(candle['mid']['c'])})
+						'close': float(candle['mid']['c']),
+						'completed': candle['complete']})
 
 			return pd.DataFrame(data)
 
@@ -243,7 +244,7 @@ class ApiData(object):
 		pre = req.prepare()
 		response = s.send(pre, stream = False, verify = False)
 		msg = json.loads(response.text);
-		
+
 		if response.status_code != 200:
 			print msg;
 
@@ -261,3 +262,45 @@ class ApiData(object):
 		return_json['timeInForce'] = order_time_in_force;
 
 		return return_json;
+
+	def GetLastClosedCandle(self, instrument, granularity):
+		data = self.GetData(instrument, granularity, 10)
+		if data is None:
+			return None;
+
+		index = -1;
+		last_candle = data[index:].iloc[0];
+
+		while(last_candle['completed'] == False):
+			index = index - 1;
+			last_candle = data[index:].iloc[0];
+
+		return last_candle;
+
+	def ExistsTradeOfInstrument(self, instrument):
+		url = "https://" + self.domain + "/v3/accounts/" + self.account_id + "/openTrades"
+		headers = { 'Authorization' : 'Bearer ' + self.access_token }
+
+		s = requests.Session()
+		req = requests.Request('GET', url, headers = headers)
+		pre = req.prepare()
+		response = s.send(pre, stream = False, verify = False)
+		msg = json.loads(response.text);
+
+		if msg.has_key("trades") and len(msg['trades']) > 0:
+			for trade in msg['trades']:
+				if trade['instrument'] == instrument:
+					return True;
+
+		return False;
+
+	def GetClosedTrades(self):
+		url = "https://" + self.domain + "/v3/accounts/" + self.account_id + "/trades"
+		headers = { 'Authorization' : 'Bearer ' + self.access_token }
+		params = {'state': 'CLOSED'}
+		s = requests.Session()
+		req = requests.Request('GET', url, headers = headers, params = params)
+		pre = req.prepare()
+		response = s.send(pre, stream = False, verify = False)
+		msg = json.loads(response.text);
+		print msg;

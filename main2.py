@@ -8,10 +8,11 @@ apiData = ApiData.ApiData(account_id, access_token)
 instrumentsManager = InstrumentsManager.InstrumentsManager({}, account_id, access_token)
 
 def main():
-	trades = apiData.GetTradesOpened()
-	for trade in trades:
-		if trade['instrument'] == 'EUR_GBP':
-			apiData.ModifyStopLoss(trade['stopLossOrder']['id'], trade['id'], trade['price']);
+	apiData.GetClosedTrades();
+	#trades = apiData.GetTradesOpened()
+	#for trade in trades:
+	#	if trade['instrument'] == 'EUR_GBP':
+	#		apiData.ModifyStopLoss(trade['stopLossOrder']['id'], trade['id'], trade['price']);
 	#instrumentsManager.GetTradeableInstruments();
 	#GetTradeableInstruments()
 	#for inst in instrumentsManager.transactions:
