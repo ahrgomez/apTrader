@@ -67,7 +67,11 @@ def PutOrder(order_type, instrument, price, stop_loss):
 		order_id = str(uuid.uuid1())
 
 		stop_loss = '{0:.6g}'.format(stop_loss)
-		result = apiData.MakeMarketOrder(order_id, instrument, date, order_type * units, stop_loss)
+		
+		total_units = order_type * units;
+		total_units = '{0:.6g}'.format(total_units)
+
+		result = apiData.MakeMarketOrder(order_id, instrument, date, total_units, stop_loss)
 
 		if result == True:
 			print "Made " + instrument + " order with id " + order_id + " with " + str(order_type * units) + " units"
