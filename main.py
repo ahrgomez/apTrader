@@ -47,9 +47,10 @@ def ProcessPrice(instrument, price):
 	if check_result is None:
 		return
 
-	PutOrder(check_result, instrument, price, stop_loss_price);
-
-	return check_result
+	if PutOrder(check_result, instrument, price, stop_loss_price):
+		return check_result;
+	else:
+		return None;
 
 def PutOrder(order_type, instrument, price, stop_loss):
 	if not apiData.ExistsTradeOfInstrument(instrument):
@@ -67,6 +68,9 @@ def PutOrder(order_type, instrument, price, stop_loss):
 
 		if result == True:
 			print "Made " + instrument + " order with id " + order_id + " with " + str(order_type * units) + " units"
+			return True;
+
+		return False;
 
 if __name__ == "__main__":
     main()

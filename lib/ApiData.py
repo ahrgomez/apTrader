@@ -303,4 +303,7 @@ class ApiData(object):
 		pre = req.prepare()
 		response = s.send(pre, stream = False, verify = False)
 		msg = json.loads(response.text);
-		print msg;
+
+		for trade in msg['trades']:
+			print trade;
+			print "----";
