@@ -24,8 +24,7 @@ class Ichimoku(object):
             if self._isPriceTopOfKumo(last_tenkan):
                 cross_point, cross_value, candles_of_cross = self._getLastCross(self.ichimoku_dataframe['PRICE'], self.ichimoku_dataframe['TENKAN']);
                 if cross_value == 1 and candles_of_cross < 6:
-                    last_candles = self.apiData.GetData(instrument, self.granularity, 5)
-                    last_candle = last_candles.iloc[len(last_candles) - 2];
+                    last_candle = self.apiData.GetLastClosedCandle(instrument, self.granularity);
 
                     if last_candle['open'] < last_tenkan and last_candle['close'] > last_tenkan:
                         if self._isCandleInAValidPosition(last_candle, cross_value):
@@ -36,8 +35,7 @@ class Ichimoku(object):
             if self._isPriceBottomOfKumo(last_tenkan):
                 cross_point, cross_value, candles_of_cross = self._getLastCross(self.ichimoku_dataframe['PRICE'], self.ichimoku_dataframe['TENKAN']);
                 if cross_value == -1 and candles_of_cross < 6:
-                    last_candles = self.apiData.GetData(instrument, self.granularity, 5)
-                    last_candle = last_candles.iloc[len(last_candles) - 2];
+                    last_candle = self.apiData.GetLastClosedCandle(instrument, self.granularity);
 
                     if last_candle['open'] > last_tenkan and last_candle['close'] < last_tenkan:
                         if self._isCandleInAValidPosition(last_candle, cross_value):

@@ -304,6 +304,4 @@ class ApiData(object):
 		response = s.send(pre, stream = False, verify = False)
 		msg = json.loads(response.text);
 
-		for trade in msg['trades']:
-			print trade;
-			print "----";
+		return msg['trades'];
