@@ -127,10 +127,18 @@ class Ichimoku(object):
         return 0;
 
     def _getStopLossPrice(self, trade_type):
+        senkouA = self.ichimoku_dataframe['SENKOU_A'].iloc[len(self.ichimoku_dataframe['SENKOU_A'].index) - 1];
+        senkouB = self.ichimoku_dataframe['SENKOU_B'].iloc[len(self.ichimoku_dataframe['SENKOU_B'].index) - 1];
         if trade_type == 1:
-            return self.ichimoku_dataframe['SENKOU_A'].iloc[len(self.ichimoku_dataframe['SENKOU_A'].index) - 1]
+            if senkouA < senkouB:
+                return senkouA;
+            else:
+                return senkouB;
         else:
-            return self.ichimoku_dataframe['SENKOU_B'].iloc[len(self.ichimoku_dataframe['SENKOU_B'].index) - 1]
+            if senkouA > senkouB:
+                return senkouA;
+            else:
+                return senkouB;
 
     def _getLastCross(self, data1, data2):
         total_index = len(data1.index) - 1;
