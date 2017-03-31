@@ -78,7 +78,7 @@ class ApiData(object):
 		return None
 
 	def MakeMarketOrder(self, order_id, instrument, datetime, units, stop_loss):
-		order = self.GetMarketOrderBody(order_id, instrument, datetime, int(units), stop_loss)
+		order = self.GetMarketOrderBody(order_id, instrument, datetime, float(units), stop_loss)
 
 		url = "https://" + self.domain + "/v3/accounts/" + self.account_id + "/orders"
 		headers = { 'Authorization' : 'Bearer ' + self.access_token }
@@ -231,7 +231,7 @@ class ApiData(object):
 
 		if response.status_code != 200:
 			raise Exception('GetConvertPriceCurrencyWithGoogle: ' + response.text)
-			
+
 		soup = BeautifulSoup(response.text, 'html.parser')
 		span = soup.find("span", attrs = {"class":"bld"});
 		data = span.get_text()
