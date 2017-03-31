@@ -5,8 +5,6 @@ from numpy import *
 import numpy as np
 import pandas as pd
 
-import matplotlib.pyplot as plt
-
 class Ichimoku(object):
 
     apiData = {};
@@ -94,8 +92,6 @@ class Ichimoku(object):
         self.ichimoku_dataframe['SENKOU_B'] = self._calculateMidPoint(dataS5['high'], dataS5['low'], 44).shift(22);
         self.ichimoku_dataframe['CHIKOU'] = dataS5['close'].shift(-22);
         self.ichimoku_dataframe['PRICE'] = dataS5['close'];
-        #self.ichimoku_dataframe.plot()
-        #plt.show()
 
     def _isPriceTopOfKumo(self, actual_price):
 
