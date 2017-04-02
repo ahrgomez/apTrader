@@ -99,6 +99,7 @@ def PutOrder(order_type, instrument, price, stop_loss):
 def IsForbiddenTime():
 	weekday = datetime.today().weekday();
 	today = datetime.today();
+	print today;
 	if weekday == 4 and today.hour > 23:
 		return True;
 
