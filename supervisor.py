@@ -3,6 +3,7 @@ from strategies import Ichimoku
 from time import sleep
 from raven import Client
 from datetime import datetime
+import pytz
 
 access_token = '362c69e15045ab046662317d02837de5-abe03f3f1c7b18419930866fe2bd69b0'
 account_id = '101-004-5177797-001'
@@ -19,24 +20,6 @@ def main():
 				sleep(60);
 				continue;
                 
-            weekday = datetime.today().weekday();
-            today = datetime.today();
-
-            if weekday == 4 and today.hour > 23:
-                print "BOLSA CERRADA"
-                sleep(60);
-                continue;
-
-            if weekday == 5:
-                print "BOLSA CERRADA"
-                sleep(60);
-                continue;
-
-            if weekday == 6 and today.hour < 23:
-                print "BOLSA CERRADA"
-                sleep(60);
-                continue;
-
             print "Init supervisor"
             print "----------------"
             InitProcess();
@@ -120,8 +103,12 @@ def CheckPartialClose(trade, trade_type):
     return ichimoku.CheckPartialClose(trade_type, trade['instrument'], float(trade['initialUnits']), float(trade['unrealizedPL']));
 
 def IsForbiddenTime():
+	local = pytz.timezone ("Europe/Madrid")
 	weekday = datetime.today().weekday();
 	today = datetime.today();
+	today = local.localize(today, is_dst=None)
+
+	print today;
 	if weekday == 4 and today.hour > 23:
 		return True;
 
