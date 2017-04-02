@@ -8,7 +8,6 @@ import uuid
 import json
 from datetime import datetime
 from time import sleep
-import pytz
 
 access_token = '362c69e15045ab046662317d02837de5-abe03f3f1c7b18419930866fe2bd69b0'
 account_id = '101-004-5177797-001'
@@ -98,19 +97,16 @@ def PutOrder(order_type, instrument, price, stop_loss):
 		return False;
 
 def IsForbiddenTime():
-	local = pytz.timezone ("Europe/Madrid")
 	weekday = datetime.today().weekday();
 	today = datetime.today();
-	today = local.localize(today, is_dst=None)
 
-	print today;
-	if weekday == 4 and today.hour > 23:
+	if weekday == 4 and today.hour > 21:
 		return True;
 
 	if weekday == 5:
 		return True;
 
-	if weekday == 6 and today.hour < 23:
+	if weekday == 6 and today.hour < 21:
 		return True;
 
 	return False;
