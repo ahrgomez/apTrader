@@ -17,6 +17,7 @@ def main():
             print "----------------"
             InitProcess();
             print "----------------"
+            sleep(30);
         except KeyboardInterrupt:
 			break;
         except:

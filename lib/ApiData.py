@@ -131,7 +131,7 @@ class ApiData(object):
 			last_close_price = 1;
 		else:
 			currency_to_check = base_currency + "_" + local_currency;
-			last_close_price = self.GetConvertPriceCurrencyWithGoogle(local_currency, base_currency)
+			last_close_price = self.GetConvertPriceCurrencyWithFixer(local_currency, base_currency)
 
 		units =  float(price) * rate / float(last_close_price);
 		units = self.truncate(units, int(precision));
@@ -231,7 +231,7 @@ class ApiData(object):
 			last_close_price = 1;
 		else:
 			currency_to_check = base_currency + "_" + local_currency;
-			last_close_price = self.GetConvertPriceCurrencyWithGoogle(local_currency, base_currency)
+			last_close_price = self.GetConvertPriceCurrencyWithFixer(local_currency, base_currency)
 
 		return last_close_price;
 
@@ -251,6 +251,15 @@ class ApiData(object):
 			price += v;
 
 		return float(price);
+
+	def GetConvertPriceCurrencyWithFixer(self, currency_A, currency_B):
+		url = "http://api.fixer.io/latest?base=" + currency_A;
+		s = requests.Session()
+		req = requests.Request('GET', url);
+		pre = req.prepare()
+		response = s.send(pre, stream = False, verify = False)
+		msg = json.loads(response.text);
+		return msg['rates'][currency_B];
 
 	def GetPipValue(self, instrument, units):
 		if units < 0:
@@ -277,6 +286,7 @@ class ApiData(object):
 			raise Exception('ModifyStopLoss: ' + response.text)
 
 		return msg;
+
 	def _getStopLossOrderBody(self, trade_id, new_stop_loss):
 		order_type = "STOP_LOSS"
 		order_time_in_force = "GTC"
