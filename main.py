@@ -7,6 +7,7 @@ import numpy as np
 import uuid
 import json
 from datetime import datetime
+from time import sleep
 
 access_token = '362c69e15045ab046662317d02837de5-abe03f3f1c7b18419930866fe2bd69b0'
 account_id = '101-004-5177797-001'
@@ -26,7 +27,17 @@ def main():
 
 	while(True):
 		try:
+			if IsForbiddenTime():
+				print "BOLSA CERRADA";
+				sleep(60);
+				continue;
+
 			for tick in apiData.GetStreamingData(instruments_list):
+				if IsForbiddenTime():
+					print "BOLSA CERRADA";
+					sleep(60);
+					break;
+
 				instrument = tick['instrument'];
 				price = tick['price'];
 
@@ -84,6 +95,20 @@ def PutOrder(order_type, instrument, price, stop_loss):
 			return True;
 
 		return False;
+
+def IsForbiddenTime():
+	weekday = datetime.today().weekday();
+	today = datetime.today();
+	if weekday == 4 and today.hour > 23:
+		return True;
+
+	if weekday == 5:
+		return True;
+
+	if weekday == 6 and today.hour < 23:
+		return True;
+
+	return False;
 
 if __name__ == "__main__":
     main()

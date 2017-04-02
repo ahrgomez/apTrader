@@ -2,6 +2,7 @@ from lib import ApiData
 from strategies import Ichimoku
 from time import sleep
 from raven import Client
+from datetime import datetime
 
 access_token = '362c69e15045ab046662317d02837de5-abe03f3f1c7b18419930866fe2bd69b0'
 account_id = '101-004-5177797-001'
@@ -13,6 +14,29 @@ ichimoku = Ichimoku.Ichimoku(account_id, access_token)
 def main():
     while(True):
         try:
+            if IsForbiddenTime():
+				print "BOLSA CERRADA";
+				sleep(60);
+				continue;
+                
+            weekday = datetime.today().weekday();
+            today = datetime.today();
+
+            if weekday == 4 and today.hour > 23:
+                print "BOLSA CERRADA"
+                sleep(60);
+                continue;
+
+            if weekday == 5:
+                print "BOLSA CERRADA"
+                sleep(60);
+                continue;
+
+            if weekday == 6 and today.hour < 23:
+                print "BOLSA CERRADA"
+                sleep(60);
+                continue;
+
             print "Init supervisor"
             print "----------------"
             InitProcess();
@@ -94,6 +118,20 @@ def CheckTotalClose(trade, trade_type):
 
 def CheckPartialClose(trade, trade_type):
     return ichimoku.CheckPartialClose(trade_type, trade['instrument'], float(trade['initialUnits']), float(trade['unrealizedPL']));
+
+def IsForbiddenTime():
+	weekday = datetime.today().weekday();
+	today = datetime.today();
+	if weekday == 4 and today.hour > 23:
+		return True;
+
+	if weekday == 5:
+		return True;
+
+	if weekday == 6 and today.hour < 23:
+		return True;
+
+	return False;
 
 if __name__ == "__main__":
     main()
