@@ -86,7 +86,7 @@ def PutOrder(order_type, instrument, price, stop_loss):
 
 		stop_loss = '{0:.6g}'.format(stop_loss)
 
-		total_units = order_type * units;
+		total_units = order_type * float(units);
 
 		result = apiData.MakeMarketOrder(order_id, instrument, date, total_units, stop_loss)
 
