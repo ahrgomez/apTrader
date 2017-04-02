@@ -36,6 +36,13 @@ def InitProcess():
 
         instrument = trade['instrument'];
 
+        instrument_part_A = instrument.split('_')[0];
+        instrument_part_A = instrument_part_A.encode('ascii','ignore');
+        instrument_part_B = instrument.split('_')[1];
+        instrument_part_B = instrument_part_B.encode('ascii','ignore');
+
+        instrument = instrument_part_A + '_' + instrument_part_B;
+
         if float(trade['initialUnits']) < 0:
             trade_type = -1;
         else:
@@ -53,11 +60,11 @@ def InitProcess():
 def CheckToCloseTrade(trade, instrument, trade_type, partially_closed):
 
     if partially_closed:
-        if CheckTotalClose(trade, trade_type):
+        if CheckTotalClose(instrument, trade_type):
             print instrument + " A CERRAR DEL TODO";
             apiData.CloseTradePartially(trade, 0);
         else:
-            actual_price = float(apiData.GetActualPrice(trade['instrument']));
+            actual_price = float(apiData.GetActualPrice(instrument));
             stop_loss_price = float(trade['stopLossOrder']['price']);
             begining_price = float(trade['price']);
 
@@ -85,21 +92,21 @@ def CheckToCloseTrade(trade, instrument, trade_type, partially_closed):
             apiData.ModifyStopLoss(trade['stopLossOrder']['id'], trade['id'], str(new_stop_loss));
             print "Upload stop loss from " + instrument + " to " + str(new_stop_loss);
     else:
-        if CheckPartialClose(trade, trade_type):
+        if CheckPartialClose(trade, instrument, trade_type):
             print instrument + " A CERRAR A MITAD";
             apiData.CloseTradePartially(trade, 0.5);
             apiData.ModifyStopLoss(trade['stopLossOrder']['id'], trade['id'], trade['price']);
 
 
-def CheckTotalClose(trade, trade_type):
-    last_candle = apiData.GetLastClosedCandle(trade['instrument'], "H1");
+def CheckTotalClose(instrument, trade_type):
+    last_candle = apiData.GetLastClosedCandle(instrument, "H1");
     if last_candle is None:
         return False;
     else:
-        return ichimoku.CheckTotalClose(trade_type, trade['instrument'], last_candle);
+        return ichimoku.CheckTotalClose(trade_type, instrument, last_candle);
 
-def CheckPartialClose(trade, trade_type):
-    return ichimoku.CheckPartialClose(trade_type, trade['instrument'], float(trade['initialUnits']), float(trade['unrealizedPL']));
+def CheckPartialClose(trade, instrument, trade_type):
+    return ichimoku.CheckPartialClose(trade_type, instrument, float(trade['initialUnits']), float(trade['unrealizedPL']));
 
 def IsForbiddenTime():
 	weekday = datetime.today().weekday();
