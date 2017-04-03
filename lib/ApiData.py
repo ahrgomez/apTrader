@@ -1,3 +1,5 @@
+import settings
+
 import requests
 
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
@@ -10,20 +12,9 @@ import re
 
 class ApiData(object):
 
-	access_token = "";
-	domain = "";
-	streaming_domain = "";
-	account_id = "";
-
-	def __init__(self, account_id, access_token):
-		self.account_id = account_id
-		self.access_token = access_token
-		self.domain = "api-fxpractice.oanda.com"
-		self.streaming_domain = "stream-fxpractice.oanda.com"
-
 	def GetData(self, instrument, granularity, candles_count):
-		url = "https://" + self.domain + "/v3/instruments/" + instrument + "/candles"
-		headers = { 'Authorization' : 'Bearer ' + self.access_token, 'count': str(candles_count) }
+		url = "https://" + settings.API_DOMAIN + "/v3/instruments/" + instrument + "/candles"
+		headers = { 'Authorization' : 'Bearer ' + settings.ACCESS_TOKEN, 'count': str(candles_count) }
 		params = { 'price' : 'M', 'granularity': granularity }
 
 		s = requests.Session()
@@ -52,8 +43,8 @@ class ApiData(object):
 	def _connectToStream(self, instrument):
 		try:
 			s = requests.Session()
-			url = "https://" + self.streaming_domain + "/v3/accounts/" + self.account_id +"/pricing/stream"
-			headers = { 'Authorization' : 'Bearer ' + self.access_token }
+			url = "https://" + settings.STREAM_DOMAIN + "/v3/accounts/" + settings.ACCOUNT_ID +"/pricing/stream"
+			headers = { 'Authorization' : 'Bearer ' + settings.ACCESS_TOKEN }
 			params = { 'instruments' : instrument }
 			req = requests.Request('GET', url, headers = headers, params = params)
 			pre = req.prepare()
@@ -81,8 +72,8 @@ class ApiData(object):
 	def MakeMarketOrder(self, order_id, instrument, datetime, units, stop_loss):
 		order = self.GetMarketOrderBody(order_id, instrument, datetime, units, stop_loss)
 
-		url = "https://" + self.domain + "/v3/accounts/" + self.account_id + "/orders"
-		headers = { 'Authorization' : 'Bearer ' + self.access_token }
+		url = "https://" + settings.API_DOMAIN + "/v3/accounts/" + settings.ACCOUNT_ID + "/orders"
+		headers = { 'Authorization' : 'Bearer ' + settings.ACCESS_TOKEN }
 
 		s = requests.Session()
 		req = requests.Request('POST', url, headers = headers, json={ "order": order })
@@ -163,8 +154,8 @@ class ApiData(object):
 
 	def GetAllInstrumentsTradeable(self):
 
-		url = "https://" + self.domain + "/v3/accounts/" + self.account_id + "/instruments"
-		headers = { 'Authorization' : 'Bearer ' + self.access_token }
+		url = "https://" + settings.API_DOMAIN + "/v3/accounts/" + settings.ACCOUNT_ID + "/instruments"
+		headers = { 'Authorization' : 'Bearer ' + settings.ACCESS_TOKEN }
 
 		s = requests.Session()
 		req = requests.Request('GET', url, headers = headers)
@@ -191,8 +182,8 @@ class ApiData(object):
 		return data[-1:];
 
 	def GetTradesOpened(self):
-		url = "https://" + self.domain + "/v3/accounts/" + self.account_id + "/openTrades"
-		headers = { 'Authorization' : 'Bearer ' + self.access_token }
+		url = "https://" + settings.API_DOMAIN + "/v3/accounts/" + settings.ACCOUNT_ID + "/openTrades"
+		headers = { 'Authorization' : 'Bearer ' + settings.ACCESS_TOKEN }
 		#params = { 'price' : 'M', 'granularity': granularity }
 
 		s = requests.Session()
@@ -218,8 +209,8 @@ class ApiData(object):
 		if units_to_close == 0:
 			units_to_close = "ALL";
 
-		url = "https://" + self.domain + "/v3/accounts/" + self.account_id + "/trades/" + trade['id'] + "/close";
-		headers = { 'Authorization' : 'Bearer ' + self.access_token }
+		url = "https://" + settings.API_DOMAIN + "/v3/accounts/" + settings.ACCOUNT_ID + "/trades/" + trade['id'] + "/close";
+		headers = { 'Authorization' : 'Bearer ' + settings.ACCESS_TOKEN }
 
 		s = requests.Session()
 		req = requests.Request('PUT', url, headers = headers, json={ "units": str(units_to_close) })
@@ -292,8 +283,8 @@ class ApiData(object):
 			return (0.0001 * units) / currency_change_price;
 
 	def ModifyStopLoss(self, trade_id, stop_loss_id, new_stop_loss):
-		url = "https://" + self.domain + "/v3/accounts/" + self.account_id + "/orders/" + trade_id;
-		headers = { 'Authorization' : 'Bearer ' + self.access_token }
+		url = "https://" + settings.API_DOMAIN + "/v3/accounts/" + settings.ACCOUNT_ID + "/orders/" + trade_id;
+		headers = { 'Authorization' : 'Bearer ' + settings.ACCESS_TOKEN }
 
 		s = requests.Session()
 		req = requests.Request('PUT', url, headers = headers, json={'order': self._getStopLossOrderBody(stop_loss_id, str(new_stop_loss))});
@@ -335,8 +326,8 @@ class ApiData(object):
 		return last_candle;
 
 	def ExistsTradeOfInstrument(self, instrument):
-		url = "https://" + self.domain + "/v3/accounts/" + self.account_id + "/openTrades"
-		headers = { 'Authorization' : 'Bearer ' + self.access_token }
+		url = "https://" + settings.API_DOMAIN + "/v3/accounts/" + settings.ACCOUNT_ID + "/openTrades"
+		headers = { 'Authorization' : 'Bearer ' + settings.ACCESS_TOKEN }
 
 		s = requests.Session()
 		req = requests.Request('GET', url, headers = headers)
@@ -356,8 +347,8 @@ class ApiData(object):
 		return False;
 
 	def GetClosedTrades(self):
-		url = "https://" + self.domain + "/v3/accounts/" + self.account_id + "/trades"
-		headers = { 'Authorization' : 'Bearer ' + self.access_token }
+		url = "https://" + settings.API_DOMAIN + "/v3/accounts/" + settings.ACCOUNT_ID + "/trades"
+		headers = { 'Authorization' : 'Bearer ' + settings.ACCESS_TOKEN }
 		params = {'state': 'CLOSED'}
 		s = requests.Session()
 		req = requests.Request('GET', url, headers = headers, params = params)

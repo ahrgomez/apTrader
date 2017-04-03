@@ -11,7 +11,7 @@ class StochRSI(object):
     sma = {}
 
     def __init__(self, api_account_id, api_access_token):
-        self.apiData = ApiData.ApiData(api_account_id, api_access_token)
+        self.apiData = ApiData()
         self.rsi = Rsi.Rsi(14)
         self.stochastic = Stochastic.Stochastic(14, 3)
         self.sma = SimpleMobileAverage.SimpleMobileAverage(60)

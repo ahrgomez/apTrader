@@ -1,13 +1,13 @@
-from lib import ApiData
+from lib.ApiData import ApiData
 
 class InstrumentsManager(object):
 
     instruments = {}
     apiData = {}
 
-    def __init__(self, instruments = {}, api_account_id = "", api_access_token = ""):
+    def __init__(self, instruments = {}):
         self.instruments = instruments
-        self.apiData = ApiData.ApiData(api_account_id, api_access_token)
+        self.apiData = ApiData()
         self.GetTradeableInstruments()
 
     def Add(self, instrument, data):

@@ -1,16 +1,15 @@
-from lib import ApiData, InstrumentsManager
-from strategies import Ichimoku
+from lib.ApiData import ApiData
+from lib.InstrumentsManager import InstrumentsManager
+from strategies.Ichimoku import Ichimoku
 from time import sleep
 from raven import Client
 from datetime import datetime
 
-access_token = '362c69e15045ab046662317d02837de5-abe03f3f1c7b18419930866fe2bd69b0'
-account_id = '101-004-5177797-001'
 errorsManagement = Client('https://7aff590e4b774a43ba2255f9e1dcbeff:e88ee295381e4c24bb700e71024e8ba2@sentry.io/154033')
 
-apiData = ApiData.ApiData(account_id, access_token)
-instrumentsManager = InstrumentsManager.InstrumentsManager({}, account_id, access_token)
-ichimoku = Ichimoku.Ichimoku(account_id, access_token)
+apiData = ApiData()
+instrumentsManager = InstrumentsManager({})
+ichimoku = Ichimoku()
 
 DEBUG = False;
 

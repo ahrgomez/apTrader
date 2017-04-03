@@ -1,4 +1,4 @@
-from lib import ApiData
+from lib.ApiData import ApiData
 
 from datetime import datetime
 from numpy import *
@@ -11,8 +11,8 @@ class Ichimoku(object):
     ichimoku_dataframe = pd.DataFrame();
     granularity = "H1";
 
-    def __init__(self, api_account_id, api_access_token):
-        self.apiData = ApiData.ApiData(api_account_id, api_access_token);
+    def __init__(self):
+        self.apiData = ApiData();
 
     def Verify(self, instrument, actual_price):
 

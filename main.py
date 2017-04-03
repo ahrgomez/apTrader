@@ -1,5 +1,6 @@
 
-from lib import ApiData, InstrumentsManager
+from lib.ApiData import ApiData
+from lib.InstrumentsManager import InstrumentsManager
 from strategies import Ichimoku
 from raven import Client
 
@@ -9,15 +10,12 @@ import json
 from datetime import datetime
 from time import sleep
 
-access_token = '362c69e15045ab046662317d02837de5-abe03f3f1c7b18419930866fe2bd69b0'
-account_id = '101-004-5177797-001'
-
-apiData = ApiData.ApiData(account_id, access_token)
-instrumentsManager = InstrumentsManager.InstrumentsManager({}, account_id, access_token)
+apiData = ApiData()
+instrumentsManager = InstrumentsManager({})
 errorsManagement = Client('https://7932a7da676c4962895957059416bd7d:da9a1669ee724bb2b61cf7b47b430ccc@sentry.io/154029')
 
 #Strategies
-ichimoku = Ichimoku.Ichimoku(account_id, access_token)
+ichimoku = Ichimoku.Ichimoku()
 
 DEBUG = False;
 

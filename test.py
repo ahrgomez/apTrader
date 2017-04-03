@@ -1,4 +1,5 @@
-from lib import ApiData, InstrumentsManager
+from lib.ApiData import ApiData
+from lib.InstrumentsManager import InstrumentsManager
 
 from strategies import Ichimoku
 
@@ -7,7 +8,7 @@ from datetime import datetime
 access_token = '362c69e15045ab046662317d02837de5-abe03f3f1c7b18419930866fe2bd69b0'
 account_id = '101-004-5177797-001'
 
-apiData = ApiData.ApiData(account_id, access_token)
+apiData = ApiData()
 instrumentsManager = InstrumentsManager.InstrumentsManager({}, account_id, access_token)
 
 ichimoku = Ichimoku.Ichimoku(account_id, access_token)
@@ -20,32 +21,6 @@ def main():
     #print ichimoku.CheckPartialClose(-1, 'EUR_NZD', 1.52793, 5.02);
     #apiData.CloseTradePartially(trade, 0.5);
     #apiData.ModifyStopLoss(trade['stopLossOrder']['id'], trade['id'], trade['price']);
-    PutOrder(1, 'EUR_HKD', 8.273825, '8.329595')
-
-def PutOrder(order_type, instrument, price, stop_loss):
-	if not apiData.ExistsTradeOfInstrument(instrument):
-		date = datetime.now()
-		units = apiData.GetUnitsForPrice(50, instrument, instrumentsManager.instruments[instrument]['precision'], instrumentsManager.instruments[instrument]['rate']);
-
-		if units is None:
-			print "Can't have units to " + instrument
-			return None;
-
-		order_id = str(uuid.uuid1())
-
-		i, p, d = str(price).partition('.');
-		price_precision = len(d);
-
-		stop_loss = apiData.GetPriceFormatted(stop_loss, price_precision);
-
-		total_units = order_type * float(units);
-
-		result = apiData.MakeMarketOrder(order_id, instrument, date, total_units, stop_loss)
-
-		if result == True:
-			print "Made " + instrument + " order with id " + order_id + " with " + str(order_type * units) + " units"
-			return True;
-
-		return False;
+    #PutOrder(1, 'EUR_HKD', 8.273825, '8.329595')
 if __name__ == "__main__":
     main()
