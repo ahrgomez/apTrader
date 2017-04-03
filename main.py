@@ -52,12 +52,13 @@ def main():
 
 				result = ProcessPrice(instrument, price);
 
-				if DEBUG and result is None:
-					print instrument + ": " + "NONE"
-				elif result == 1:
-					print instrument + ": " + "LONG"
-				else:
-					print instrument + ": " + "SHORT"
+				if DEBUG:
+					if result is None:
+						print instrument + ": " + "NONE"
+					elif result == 1:
+						print instrument + ": " + "LONG"
+					else:
+						print instrument + ": " + "SHORT"
 		except KeyboardInterrupt:
 			break;
 		except:
