@@ -22,7 +22,7 @@ class InstrumentsManager(object):
                 self.Add(instrument['name'],
                 	{
                 		'min': instrument['minimumTradeSize'],
-                		'precision': instrument['displayPrecision'],
+                		'precision': instrument['precision'],
                 		'rate': int(1 / float(instrument['marginRate'])),
                 		'max': instrument['maximumOrderUnits']
                 	}
