@@ -70,7 +70,7 @@ def CheckToCloseTrade(trade, instrument, trade_type, partially_closed):
     if partially_closed:
         if CheckTotalClose(instrument, trade_type):
             print instrument + " A CERRAR DEL TODO";
-            apiData.CloseTradePartially(trade, 0);
+            OrdersData().CloseTradePartially(trade, 0);
         else:
             actual_price = float(apiData.GetActualPrice(instrument));
             stop_loss_price = float(trade['stopLossOrder']['price']);
@@ -102,7 +102,7 @@ def CheckToCloseTrade(trade, instrument, trade_type, partially_closed):
     else:
         if CheckPartialClose(trade, instrument, trade_type):
             print instrument + " A CERRAR A MITAD";
-            apiData.CloseTradePartially(trade, 0.5);
+            OrdersData().CloseTradePartially(trade, 0.5);
             OrdersData().ModifyStopLoss(trade['stopLossOrder']['id'], trade['id'], trade['price']);
 
 
