@@ -111,13 +111,13 @@ class ApiData(object):
 		client_extension['comment'] = instrument + "_" + str(datetime)
 
 		stop_loss_details = {}
-		stop_loss_details['price'] = stop_loss
+		stop_loss_details['price'] = str(stop_loss);
 		stop_loss_details['clientExtension'] = client_extension
 
 		return_json = {}
 		return_json['type'] = order_type
 		return_json['instrument'] = instrument
-		return_json['units'] = units
+		return_json['units'] = str(units);
 		return_json['clientExtensions'] = client_extension
 		return_json['stopLossOnFill'] = stop_loss_details
 
@@ -294,7 +294,7 @@ class ApiData(object):
 		headers = { 'Authorization' : 'Bearer ' + self.access_token }
 
 		s = requests.Session()
-		req = requests.Request('PUT', url, headers = headers, json={'order': self._getStopLossOrderBody(stop_loss_id, new_stop_loss)});
+		req = requests.Request('PUT', url, headers = headers, json={'order': self._getStopLossOrderBody(stop_loss_id, str(new_stop_loss))});
 		pre = req.prepare()
 		response = s.send(pre, stream = False, verify = False)
 		msg = json.loads(response.text);
