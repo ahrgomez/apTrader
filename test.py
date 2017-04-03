@@ -13,15 +13,17 @@ instrumentsManager = InstrumentsManager.InstrumentsManager({}, account_id, acces
 ichimoku = Ichimoku.Ichimoku(account_id, access_token)
 
 def main():
-    #instrumentsManager.GetTradeableInstruments();
+    instrumentsManager.GetTradeableInstruments();
     #instrument = "USD_SAR"
     #print apiData.GetUnitsForPrice(12.9057, instrument, instrumentsManager.instruments[instrument]['precision'], instrumentsManager.instruments[instrument]['rate']);
 
     #print ichimoku.CheckPartialClose(-1, 'EUR_NZD', 1.52793, 5.02);
     #apiData.CloseTradePartially(trade, 0.5);
     #apiData.ModifyStopLoss(trade['stopLossOrder']['id'], trade['id'], trade['price']);
-    d = datetime.today().weekday()
-    print d
+    stop_loss = 80.5329853;
+    print stop_loss;
+    stop_loss = apiData.GetPriceFormatted(stop_loss, instrumentsManager.instruments['NZD_CHF']['precision']);
+    print stop_loss;
 
 if __name__ == "__main__":
     main()

@@ -138,14 +138,15 @@ class ApiData(object):
 
 		return units;
 
-	def GetPriceFormatted(self, price, precision):
-		s = '%.12f'%price;
+	def GetPriceFormatted(self, f, n):
+		s = '%.12f'%f;
 		i, p, d = s.partition('.');
 
-		if precision == 0:
+		if n == 0:
 			return i;
 		else:
-			return '.'.join([i, (d+'0'*precision)[:-precision]]);
+			n = n - len(i);
+			return '.'.join([i, (d+'0'*n)[:n]]);
 
 	def GetAllInstrumentsTradeable(self):
 

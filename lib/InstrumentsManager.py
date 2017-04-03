@@ -19,14 +19,14 @@ class InstrumentsManager(object):
     def GetTradeableInstruments(self):
     	for instrument in self.apiData.GetAllInstrumentsTradeable()['instruments']:
             if instrument['type'] != 'METAL' and instrument['type'] != 'CFD' and ('SAR' not in instrument['name']) and ('INR' not in instrument['name']):
-        		self.Add(instrument['name'],
-        			{
-        				'min': instrument['minimumTradeSize'],
-        				'precision': instrument['tradeUnitsPrecision'],
-        				'rate': int(1 / float(instrument['marginRate'])),
-        				'max': instrument['maximumOrderUnits']
-        			}
-        		)
+                self.Add(instrument['name'],
+                	{
+                		'min': instrument['minimumTradeSize'],
+                		'precision': instrument['displayPrecision'],
+                		'rate': int(1 / float(instrument['marginRate'])),
+                		'max': instrument['maximumOrderUnits']
+                	}
+                )
 
     def GetPrecision(self, instrument):
         return self.instruments[instrument]['precision'];
