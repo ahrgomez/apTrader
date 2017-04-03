@@ -54,7 +54,6 @@ def main():
 				instrument = instrument_part_A + '_' + instrument_part_B;
 
 				result = ProcessPrice(instrument, price);
-
 				if DEBUG:
 					if result is None:
 						print instrument + ": " + "NONE"
@@ -70,7 +69,6 @@ def main():
 
 def ProcessPrice(instrument, price):
 	check_result, stop_loss_price = ichimoku.Verify(instrument, price)
-
 	if check_result is None:
 		return
 

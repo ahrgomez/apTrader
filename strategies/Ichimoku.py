@@ -18,6 +18,9 @@ class Ichimoku(object):
 
         self._calculateIchimokuLines(instrument, actual_price);
 
+        if self._isEquilibriumZone(1):
+            return None, -1;
+
         #LONG
         if self._isPriceTopOfKumo(actual_price):
             last_tenkan = self.ichimoku_dataframe['TENKAN'].iloc[len(self.ichimoku_dataframe['TENKAN'].index) - 1]
@@ -41,6 +44,7 @@ class Ichimoku(object):
                         if self._isCandleInAValidPosition(last_candle, cross_value):
                             stop_loss_price =  self._getStopLossPrice(cross_value);
                             return -1, stop_loss_price;
+
         return None, -1;
 
     def Verify2(self, instrument, actual_price):
@@ -241,7 +245,6 @@ class Ichimoku(object):
         maxHigh = high_prices.rolling(window=window,center=False).max();
         maxLow = low_prices.rolling(window=window,center=False).min();
         midPoint = (maxHigh + maxLow) / 2;
-
         return midPoint;
 
     def CheckPartialClose(self, trade_type, instrument, initial_units, actual_value):

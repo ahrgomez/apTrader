@@ -13,17 +13,16 @@ class PricesStream(object):
 			raise Exception('api.PricesStream.GetStreamingData: ' + response.text)
 		for line in response.iter_lines(1):
 			msg = json.loads(line)
-
 			if msg.has_key("instrument") or msg.has_key("tick"):
 				midPrice = (float(msg['closeoutBid']) + float(msg['closeoutAsk'])) / 2.0
 				yield { 'instrument': msg['instrument'], 'price': midPrice }
 
-	def _connectToStream(self, instrument):
+	def _connectToStream(self, instruments):
 		try:
 			s = requests.Session()
-			url = "https://" + settings.STREAM_DOMAIN + "/v3/accounts/" + settings.ACCOUNT_ID +"/pricing/stream"
+			url = "https://" + settings.STREAM_DOMAIN + "/v3/accounts/" + settings.ACCOUNT_ID + "/pricing/stream"
 			headers = { 'Authorization' : 'Bearer ' + settings.ACCESS_TOKEN }
-			params = { 'instruments' : instrument }
+			params = { 'instruments' : instruments }
 			req = requests.Request('GET', url, headers = headers, params = params)
 			pre = req.prepare()
 			resp = s.send(pre, stream = True, verify = False)
