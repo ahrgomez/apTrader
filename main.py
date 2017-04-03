@@ -1,6 +1,9 @@
 
 from lib.ApiData import ApiData
 from lib.InstrumentsManager import InstrumentsManager
+
+from api.PricesStream import PricesStream
+
 from strategies import Ichimoku
 from raven import Client
 
@@ -32,7 +35,9 @@ def main():
 				sleep(60);
 				continue;
 
-			for tick in apiData.GetStreamingData(instruments_list):
+			pricesStream = PricesStream();
+
+			for tick in pricesStream.GetStreamingData(instruments_list):
 				if IsForbiddenTime():
 					print "BOLSA CERRADA";
 					sleep(60);
