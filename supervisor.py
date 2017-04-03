@@ -1,4 +1,4 @@
-from lib import ApiData
+from lib import ApiData, InstrumentsManager
 from strategies import Ichimoku
 from time import sleep
 from raven import Client
@@ -9,13 +9,14 @@ account_id = '101-004-5177797-001'
 errorsManagement = Client('https://7aff590e4b774a43ba2255f9e1dcbeff:e88ee295381e4c24bb700e71024e8ba2@sentry.io/154033')
 
 apiData = ApiData.ApiData(account_id, access_token)
+instrumentsManager = InstrumentsManager.InstrumentsManager({}, account_id, access_token)
 ichimoku = Ichimoku.Ichimoku(account_id, access_token)
 
 DEBUG = False;
 
 def main():
     instrumentsManager.GetTradeableInstruments();
-    
+
     while(True):
         try:
             if IsForbiddenTime():
