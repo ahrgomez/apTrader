@@ -253,11 +253,16 @@ class ApiData(object):
 		return float(price);
 
 	def GetConvertPriceCurrencyWithFixer(self, currency_A, currency_B):
-		url = "http://api.fixer.io/latest?base=" + currency_A;
-		s = requests.Session()
-		req = requests.Request('GET', url);
-		pre = req.prepare()
-		response = s.send(pre, stream = False, verify = False)
+		status = 504;
+
+		while(status == 504):
+			url = "http://api.fixer.io/latest?base=" + currency_A;
+			s = requests.Session()
+			req = requests.Request('GET', url);
+			pre = req.prepare()
+			response = s.send(pre, stream = False, verify = False)
+			status = response.status_code;
+			
 		msg = json.loads(response.text);
 		return msg['rates'][currency_B];
 
