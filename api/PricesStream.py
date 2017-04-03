@@ -1,5 +1,9 @@
 import settings
 import requests
+import json
+
+from requests.packages.urllib3.exceptions import InsecureRequestWarning
+requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
 class PricesStream(object):
 
