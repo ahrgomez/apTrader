@@ -141,7 +141,6 @@ class ApiData(object):
 	def GetPriceFormatted(self, f, n):
 		is_negative = False;
 		if f < 0:
-
 			is_negative = True;
 			f = f * -1;
 		s = '%.12f'%f;
@@ -150,7 +149,7 @@ class ApiData(object):
 		if n == 0:
 			if is_negative:
 				i = i * -1;
-			return i;
+			return int(i);
 		else:
 			if n > 0:
 				new_value = '.'.join([i, (d+'0'*n)[:n]]);
