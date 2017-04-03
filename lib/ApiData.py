@@ -134,18 +134,18 @@ class ApiData(object):
 			last_close_price = self.GetConvertPriceCurrencyWithFixer(local_currency, base_currency)
 
 		units =  float(price) * rate / float(last_close_price);
-		units = self.truncate(units, int(precision));
+		units = self.GetPriceFormatted(units, int(precision));
 
 		return units;
 
-	def truncate(self, f, n):
-		s = '%.12f'%f;
+	def GetPriceFormatted(self, price, precision):
+		s = '%.12f'%price;
 		i, p, d = s.partition('.');
 
-		if n == 0:
+		if precision == 0:
 			return i;
 		else:
-			return '.'.join([i, (d+'0'*n)[:-n]]);
+			return '.'.join([i, (d+'0'*precision)[:-precision]]);
 
 	def GetAllInstrumentsTradeable(self):
 
@@ -262,7 +262,7 @@ class ApiData(object):
 			pre = req.prepare()
 			response = s.send(pre, stream = False, verify = False)
 			status = response.status_code;
-			
+
 		msg = json.loads(response.text);
 		return msg['rates'][currency_B];
 

@@ -14,6 +14,8 @@ ichimoku = Ichimoku.Ichimoku(account_id, access_token)
 DEBUG = False;
 
 def main():
+    instrumentsManager.GetTradeableInstruments();
+    
     while(True):
         try:
             if IsForbiddenTime():
@@ -90,7 +92,8 @@ def CheckToCloseTrade(trade, instrument, trade_type, partially_closed):
                     else:
                         new_stop_loss = last_candle['high'];
 
-            new_stop_loss = float('{0:.6g}'.format(new_stop_loss))
+            new_stop_loss = apiData.GetPriceFormatted(new_stop_loss, instrumentsManager.instruments[instrument]['precision']);
+
             print new_stop_loss
             apiData.ModifyStopLoss(trade['stopLossOrder']['id'], trade['id'], str(new_stop_loss));
             print "Upload stop loss from " + instrument + " to " + str(new_stop_loss);
