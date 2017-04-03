@@ -153,9 +153,13 @@ class ApiData(object):
 			return i;
 		else:
 			n = n - len(i);
-			new_value = '.'.join([i, (d+'0'*n)[:n]]);
+			if n > 0:
+				new_value = '.'.join([i, (d+'0'*n)[:n]]);
+			else:
+				new_value = i;
+				
 			if is_negative:
-				new_value = float(new_value) * -1;
+				new_value = float(new_value * -1);
 
 			return new_value;
 

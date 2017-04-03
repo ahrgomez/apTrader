@@ -20,9 +20,9 @@ def main():
     #print ichimoku.CheckPartialClose(-1, 'EUR_NZD', 1.52793, 5.02);
     #apiData.CloseTradePartially(trade, 0.5);
     #apiData.ModifyStopLoss(trade['stopLossOrder']['id'], trade['id'], trade['price']);
-    stop_loss = -80.5329853;
+    stop_loss = 118.844;
     print stop_loss;
-    stop_loss = apiData.GetPriceFormatted(stop_loss, instrumentsManager.instruments['NZD_CHF']['precision']);
+    stop_loss = apiData.GetPriceFormatted(stop_loss, instrumentsManager.instruments['EUR_JPY']['precision']);
     print stop_loss;
 
 if __name__ == "__main__":
