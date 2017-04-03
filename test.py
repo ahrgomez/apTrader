@@ -20,21 +20,32 @@ def main():
     #print ichimoku.CheckPartialClose(-1, 'EUR_NZD', 1.52793, 5.02);
     #apiData.CloseTradePartially(trade, 0.5);
     #apiData.ModifyStopLoss(trade['stopLossOrder']['id'], trade['id'], trade['price']);
-    stop_loss = 80.5329853;
-    stop_loss = apiData.GetPriceFormatted(stop_loss, instrumentsManager.instruments['NZD_CHF']['precision']);
+    PutOrder(1, 'EUR_HKD', 8.273825, '8.329595')
 
-    units = 935.36;
-    stop_loss = 6.881025;
-    order_type = -1;
-    instrument = 'USD_CNH';
-    date = datetime.now();
-    order_id = str(uuid.uuid1())
+def PutOrder(order_type, instrument, price, stop_loss):
+	if not apiData.ExistsTradeOfInstrument(instrument):
+		date = datetime.now()
+		units = apiData.GetUnitsForPrice(50, instrument, instrumentsManager.instruments[instrument]['precision'], instrumentsManager.instruments[instrument]['rate']);
 
-    stop_loss = apiData.GetPriceFormatted(stop_loss, instrumentsManager.instruments[instrument]['precision']);
+		if units is None:
+			print "Can't have units to " + instrument
+			return None;
 
-    total_units = order_type * float(units);
+		order_id = str(uuid.uuid1())
 
-    result = apiData.MakeMarketOrder(order_id, instrument, date, total_units, stop_loss)
+		i, p, d = str(price).partition('.');
+		price_precision = len(d);
 
+		stop_loss = apiData.GetPriceFormatted(stop_loss, price_precision);
+
+		total_units = order_type * float(units);
+
+		result = apiData.MakeMarketOrder(order_id, instrument, date, total_units, stop_loss)
+
+		if result == True:
+			print "Made " + instrument + " order with id " + order_id + " with " + str(order_type * units) + " units"
+			return True;
+
+		return False;
 if __name__ == "__main__":
     main()

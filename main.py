@@ -90,7 +90,7 @@ def PutOrder(order_type, instrument, price, stop_loss):
 		i, p, d = str(price).partition('.');
 		price_precision = len(d);
 
-		stop_loss = apiData.GetPriceFormatted(stop_loss, price_precision);
+		stop_loss = apiData.GetPriceFormatted(stop_loss, instrumentsManager.instruments[instrument]['pricePrecision']);
 
 		total_units = order_type * float(units);
 

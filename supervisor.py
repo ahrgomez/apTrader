@@ -93,6 +93,8 @@ def CheckToCloseTrade(trade, instrument, trade_type, partially_closed):
                     else:
                         new_stop_loss = last_candle['high'];
 
+            new_stop_loss = apiData.GetPriceFormatted(new_stop_loss, instrumentsManager.instruments['pricePrecision']);
+
             apiData.ModifyStopLoss(trade['stopLossOrder']['id'], trade['id'], str(new_stop_loss));
             print "Upload stop loss from " + instrument + " to " + str(new_stop_loss);
     else:

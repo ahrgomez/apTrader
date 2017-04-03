@@ -23,6 +23,7 @@ class InstrumentsManager(object):
                 	{
                 		'min': instrument['minimumTradeSize'],
                 		'precision': instrument['tradeUnitsPrecision'],
+                        'pricePrecision': instrument['displayPrecision']m,
                 		'rate': int(1 / float(instrument['marginRate'])),
                 		'max': instrument['maximumOrderUnits']
                 	}
