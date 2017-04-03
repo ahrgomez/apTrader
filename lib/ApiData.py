@@ -267,7 +267,7 @@ class ApiData(object):
 	def GetConvertPriceCurrencyWithFixer(self, currency_A, currency_B):
 		status = 504;
 
-		while(status == 504):
+		while(status == 504 or status == 502):
 			url = "http://api.fixer.io/latest?base=" + currency_A;
 			s = requests.Session()
 			req = requests.Request('GET', url);
