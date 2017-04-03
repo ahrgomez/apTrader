@@ -11,6 +11,19 @@ apiData = ApiData.ApiData(account_id, access_token)
 def main():
 	negative = 0.0;
 	positive = 0.0;
+
+	realizedPLPositive = 0.0;
+	realizedPLNegative = 0.0;
+
+	for trade in apiData.GetTradesOpened():
+		rpl = trade['realizedPL'];
+		rpl = float(rpl);
+		if rpl < 0:
+			rpl = rpl * -1;
+			realizedPLNegative = realizedPLNegative - rpl;
+		else:
+			realizedPLPositive = realizedPLPositive + rpl;
+
 	for trade in apiData.GetClosedTrades():
 		datetime_object = parser.parse(trade['closeTime']);
 
@@ -19,19 +32,20 @@ def main():
 
 		value = float(trade['realizedPL']);
 		financing = float(trade['financing']);
-		
+
 		value = value + financing;
 
 		if(value < 0):
+			value = value * -1;
 			negative = negative - value;
 		else:
 			positive = positive + value;
 
-	print "Negative: " + str(negative);
+	print "Negative today: " + str(negative + realizedPLNegative);
 	print "----"
-	print "Positive: " + str(positive);
+	print "Positive today: " + str(positive + realizedPLPositive);
 	print "----"
-	print "Total: " + str(positive - negative);
+	print "Total: " + str((positive + realizedPLPositive) + (negative + realizedPLNegative));
 
 if __name__ == "__main__":
     main()
