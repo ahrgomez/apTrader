@@ -12,14 +12,16 @@ def main():
 	negative = 0.0;
 	positive = 0.0;
 	for trade in apiData.GetClosedTrades():
-		datetime_object = parser.parse(trade['openTime']);
+		datetime_object = parser.parse(trade['closeTime']);
+
 		if datetime_object.date() < datetime.today().date():
 			continue;
 
-		if datetime_object.hour < 9:
-			continue;
-
 		value = float(trade['realizedPL']);
+		financing = float(trade['financing']);
+		
+		value = value + financing;
+
 		if(value < 0):
 			negative = negative - value;
 		else:

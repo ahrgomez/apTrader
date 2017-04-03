@@ -11,6 +11,8 @@ errorsManagement = Client('https://7aff590e4b774a43ba2255f9e1dcbeff:e88ee295381e
 apiData = ApiData.ApiData(account_id, access_token)
 ichimoku = Ichimoku.Ichimoku(account_id, access_token)
 
+DEBUG = False;
+
 def main():
     while(True):
         try:
@@ -19,11 +21,12 @@ def main():
 				sleep(60);
 				continue;
 
-            print "Init supervisor"
-            print "----------------"
+            if DEBUG:
+                print "----------------"
+                print "Init supervisor"
+                print "----------------"
+
             InitProcess();
-            print "----------------"
-            sleep(30);
         except KeyboardInterrupt:
 			break;
         except:

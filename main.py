@@ -19,6 +19,8 @@ errorsManagement = Client('https://7932a7da676c4962895957059416bd7d:da9a1669ee72
 #Strategies
 ichimoku = Ichimoku.Ichimoku(account_id, access_token)
 
+DEBUG = False;
+
 def main():
 	instruments_list = "";
 	instrumentsManager.GetTradeableInstruments();
@@ -50,7 +52,7 @@ def main():
 
 				result = ProcessPrice(instrument, price);
 
-				if result is None:
+				if DEBUG and result is None:
 					print instrument + ": " + "NONE"
 				elif result == 1:
 					print instrument + ": " + "LONG"
