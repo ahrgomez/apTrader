@@ -40,55 +40,6 @@ class ApiData(object):
 
 			return pd.DataFrame(data)
 
-	def OrderIsStillOpened(self, order_id):
-
-		return None
-
-	def MakeMarketOrder(self, order_id, instrument, datetime, units, stop_loss):
-		order = self.GetMarketOrderBody(order_id, instrument, datetime, units, stop_loss)
-
-		url = "https://" + settings.API_DOMAIN + "/v3/accounts/" + settings.ACCOUNT_ID + "/orders"
-		headers = { 'Authorization' : 'Bearer ' + settings.ACCESS_TOKEN }
-
-		s = requests.Session()
-		req = requests.Request('POST', url, headers = headers, json={ "order": order })
-
-		pre = req.prepare()
-		response = s.send(pre, stream = False, verify = False)
-
-		if response.status_code != 201:
-			raise Exception('MakeMarketOrder: Instrument: ' + instrument + ' units: ' + str(units) + ' stop_loss: ' + str(stop_loss) + ' Response: ' + response.text)
-
-		msg = json.loads(response.text)
-
-		if msg.has_key('orderFillTransaction'):
-			return True
-		else:
-			return False
-
-	def GetMarketOrderBody(self, order_id, instrument, datetime, units, stop_loss):
-		order_type = "MARKET"
-		order_time_in_force = "GTC"
-		order_position_fill = "DEFAULT"
-
-		client_extension = {}
-		client_extension['id'] = order_id
-		client_extension['tag'] = instrument + "_" + str(datetime)
-		client_extension['comment'] = instrument + "_" + str(datetime)
-
-		stop_loss_details = {}
-		stop_loss_details['price'] = str(stop_loss);
-		stop_loss_details['clientExtension'] = client_extension
-
-		return_json = {}
-		return_json['type'] = order_type
-		return_json['instrument'] = instrument
-		return_json['units'] = str(units);
-		return_json['clientExtensions'] = client_extension
-		return_json['stopLossOnFill'] = stop_loss_details
-
-		return return_json
-
 	def GetUnitsForPrice(self, price, instrument, precision, rate = 1):
 		local_currency = "EUR";
 		base_currency = instrument.split('_')[0];
@@ -176,33 +127,6 @@ class ApiData(object):
 		else:
 			return [];
 
-	def CloseTradePartially(self, trade, percent):
-		units_to_close = int(float(trade['currentUnits']) * percent);
-		if units_to_close < 0:
-			units_to_close = units_to_close * -1;
-
-		if units_to_close == 0:
-			units_to_close = "ALL";
-
-		url = "https://" + settings.API_DOMAIN + "/v3/accounts/" + settings.ACCOUNT_ID + "/trades/" + trade['id'] + "/close";
-		headers = { 'Authorization' : 'Bearer ' + settings.ACCESS_TOKEN }
-
-		s = requests.Session()
-		req = requests.Request('PUT', url, headers = headers, json={ "units": str(units_to_close) })
-		pre = req.prepare()
-		response = s.send(pre, stream = False, verify = False)
-
-		if response.status_code != 200:
-			raise Exception('CloseTradePartially: Instrument: ' + trade['instrument'] + ' Percent: ' + str(percent) + ' Response: ' + response.text)
-
-		msg = json.loads(response.text);
-
-		if response.status_code != 200:
-			print str(units_to_close);
-			print msg;
-
-		return response.status_code == 200;
-
 	def GetCurrencyChange(self, instrument):
 		local_currency = "EUR";
 		base_currency = instrument.split('_')[1];
@@ -256,35 +180,6 @@ class ApiData(object):
 			return 0;
 		else:
 			return (0.0001 * units) / currency_change_price;
-
-	def ModifyStopLoss(self, trade_id, stop_loss_id, new_stop_loss):
-		url = "https://" + settings.API_DOMAIN + "/v3/accounts/" + settings.ACCOUNT_ID + "/orders/" + trade_id;
-		headers = { 'Authorization' : 'Bearer ' + settings.ACCESS_TOKEN }
-
-		s = requests.Session()
-		req = requests.Request('PUT', url, headers = headers, json={'order': self._getStopLossOrderBody(stop_loss_id, str(new_stop_loss))});
-		pre = req.prepare()
-		response = s.send(pre, stream = False, verify = False)
-		msg = json.loads(response.text);
-
-		if response.status_code != 201:
-			raise Exception('ModifyStopLoss: ' + response.text)
-
-		return msg;
-
-	def _getStopLossOrderBody(self, trade_id, new_stop_loss):
-		order_type = "STOP_LOSS"
-		order_time_in_force = "GTC"
-		trade_id = trade_id;
-		new_price = new_stop_loss;
-
-		return_json = {};
-		return_json['type'] = order_type;
-		return_json['tradeID'] = trade_id;
-		return_json['price'] = new_price;
-		return_json['timeInForce'] = order_time_in_force;
-
-		return return_json;
 
 	def GetLastClosedCandle(self, instrument, granularity):
 		data = self.GetData(instrument, granularity, 10)

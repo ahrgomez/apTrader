@@ -1,5 +1,8 @@
 from lib.ApiData import ApiData
 from lib.InstrumentsManager import InstrumentsManager
+
+from api.OrdersData import OrdersData
+
 from strategies.Ichimoku import Ichimoku
 from time import sleep
 from raven import Client
@@ -94,13 +97,13 @@ def CheckToCloseTrade(trade, instrument, trade_type, partially_closed):
 
             new_stop_loss = apiData.GetPriceFormatted(new_stop_loss, instrumentsManager.instruments['pricePrecision']);
 
-            apiData.ModifyStopLoss(trade['stopLossOrder']['id'], trade['id'], str(new_stop_loss));
+            OrdersData().ModifyStopLoss(trade['stopLossOrder']['id'], trade['id'], str(new_stop_loss));
             print "Upload stop loss from " + instrument + " to " + str(new_stop_loss);
     else:
         if CheckPartialClose(trade, instrument, trade_type):
             print instrument + " A CERRAR A MITAD";
             apiData.CloseTradePartially(trade, 0.5);
-            apiData.ModifyStopLoss(trade['stopLossOrder']['id'], trade['id'], trade['price']);
+            OrdersData().ModifyStopLoss(trade['stopLossOrder']['id'], trade['id'], trade['price']);
 
 
 def CheckTotalClose(instrument, trade_type):

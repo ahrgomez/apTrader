@@ -3,6 +3,7 @@ from lib.ApiData import ApiData
 from lib.InstrumentsManager import InstrumentsManager
 
 from api.PricesStream import PricesStream
+from api.OrdersData import OrdersData
 
 from strategies import Ichimoku
 from raven import Client
@@ -95,7 +96,7 @@ def PutOrder(order_type, instrument, price, stop_loss):
 
 		total_units = order_type * float(units);
 
-		result = apiData.MakeMarketOrder(order_id, instrument, date, total_units, stop_loss)
+		result = OrdersData().MakeMarketOrder(order_id, instrument, date, total_units, stop_loss)
 
 		if result == True:
 			print "Made " + instrument + " order with id " + order_id + " with " + str(order_type * units) + " units"
