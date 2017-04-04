@@ -114,7 +114,7 @@ def CheckTotalClose(instrument, trade_type):
         return ichimoku.CheckTotalClose(trade_type, instrument, last_candle);
 
 def CheckPartialClose(trade, instrument, trade_type):
-    return ichimoku.CheckPartialClose(trade_type, instrument, float(trade['initialUnits']), trade['pipLocation'], float(trade['unrealizedPL']));
+    return ichimoku.CheckPartialClose(trade_type, instrument, float(trade['initialUnits']), instrumentsManager.instruments[instrument]['pipLocation'], float(trade['unrealizedPL']));
 
 def IsForbiddenTime():
 	weekday = datetime.today().weekday();
