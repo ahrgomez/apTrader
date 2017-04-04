@@ -68,10 +68,10 @@ def InitProcess():
 def CheckToCloseTrade(trade, instrument, trade_type, partially_closed):
 
     unrealizedPL = float(trade['unrealizedPL']);
-    
+
     if unrealizedPL < 0:
         if CheckTotalClose(instrument, trade_type):
-            print instrument + " A CERRAR DEL TODO";
+            print instrument + " A CERRAR DEL TODO PARA MITIGAR PERDIDAS";
             OrdersData().CloseTradePartially(trade, 0);
     else:
         if partially_closed:
