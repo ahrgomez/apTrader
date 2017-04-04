@@ -50,7 +50,7 @@ class ApiData(object):
 			last_close_price = 1;
 		else:
 			currency_to_check = base_currency + "_" + local_currency;
-			last_close_price = self.GetConvertPriceCurrencyWithFixer(local_currency, base_currency)
+			last_close_price = self.GetConvertPriceCurrencyWithOanda(local_currency, base_currency)
 
 		units =  float(price) * rate / float(last_close_price);
 		units = self.GetPriceFormatted(units, int(precision));
@@ -137,7 +137,7 @@ class ApiData(object):
 			last_close_price = 1;
 		else:
 			currency_to_check = base_currency + "_" + local_currency;
-			last_close_price = self.GetConvertPriceCurrencyWithFixer(local_currency, base_currency)
+			last_close_price = self.GetConvertPriceCurrencyWithOanda(local_currency, base_currency)
 
 		return last_close_price;
 
@@ -171,6 +171,11 @@ class ApiData(object):
 
 		msg = json.loads(response.text);
 		return msg['rates'][currency_B];
+
+	def GetConvertPriceCurrencyWithOanda(self, currency_A, currency_B):
+		to_check = currency_A + "_" + currency_B;
+		actual_price = self.GetActualPrice(to_check);
+		return actual_price;
 
 	def GetPipValue(self, instrument, units, pip_location):
 		if units < 0:
