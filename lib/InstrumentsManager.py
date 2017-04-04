@@ -25,6 +25,7 @@ class InstrumentsManager(object):
                 		'precision': instrument['tradeUnitsPrecision'],
                         'pricePrecision': instrument['displayPrecision'],
                 		'rate': int(1 / float(instrument['marginRate'])),
+                        'pipLocation': int(instrument['pipLocation']),
                 		'max': instrument['maximumOrderUnits']
                 	}
                 )

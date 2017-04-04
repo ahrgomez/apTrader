@@ -247,7 +247,7 @@ class Ichimoku(object):
         midPoint = (maxHigh + maxLow) / 2;
         return midPoint;
 
-    def CheckPartialClose(self, trade_type, instrument, initial_units, actual_value):
+    def CheckPartialClose(self, trade_type, instrument, initial_units, pip_location, actual_value):
         pip_value = self.apiData.GetPipValue(instrument, initial_units);
 
         if pip_value == 0:

@@ -10,6 +10,8 @@ import json
 from bs4 import BeautifulSoup
 import re
 
+import math
+
 class ApiData(object):
 
 	def GetData(self, instrument, granularity, candles_count):
@@ -170,7 +172,7 @@ class ApiData(object):
 		msg = json.loads(response.text);
 		return msg['rates'][currency_B];
 
-	def GetPipValue(self, instrument, units):
+	def GetPipValue(self, instrument, units, pip_location):
 		if units < 0:
 			units = units * -1;
 
@@ -179,7 +181,8 @@ class ApiData(object):
 		if currency_change_price == 0:
 			return 0;
 		else:
-			return (0.0001 * units) / currency_change_price;
+			pip_location = math.pow(1, pip_location);
+			return (pip_location * units) / currency_change_price;
 
 	def GetLastClosedCandle(self, instrument, granularity):
 		data = self.GetData(instrument, granularity, 10)
