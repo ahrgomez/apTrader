@@ -15,14 +15,8 @@ def main():
 	realizedPLPositive = 0.0;
 	realizedPLNegative = 0.0;
 
-	for trade in apiData.GetTradesOpened():
-		rpl = trade['realizedPL'];
-		rpl = float(rpl);
-		if rpl < 0:
-			rpl = rpl * -1;
-			realizedPLNegative = realizedPLNegative - rpl;
-		else:
-			realizedPLPositive = realizedPLPositive + rpl;
+	#for trade in apiData.GetTradesOpened():
+	#	realizedPLPositive = realizedPLPositive + float(trade['realizedPL']);
 
 	for trade in apiData.GetClosedTrades():
 		datetime_object = parser.parse(trade['closeTime']);

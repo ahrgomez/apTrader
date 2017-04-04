@@ -15,7 +15,7 @@ class PricesStream(object):
 			msg = json.loads(line)
 			if msg.has_key("instrument") or msg.has_key("tick"):
 				midPrice = (float(msg['closeoutBid']) + float(msg['closeoutAsk'])) / 2.0
-				yield { 'instrument': msg['instrument'], 'price': midPrice }
+				yield { 'instrument': msg['instrument'], 'price': midPrice, 'time': str(msg['time']) }
 
 	def _connectToStream(self, instruments):
 		try:
