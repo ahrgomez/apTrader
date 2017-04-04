@@ -67,43 +67,50 @@ def InitProcess():
 
 def CheckToCloseTrade(trade, instrument, trade_type, partially_closed):
 
-    if partially_closed:
+    unrealizedPL = float(trade['unrealizedPL']);
+    
+    if unrealizedPL < 0:
         if CheckTotalClose(instrument, trade_type):
             print instrument + " A CERRAR DEL TODO";
             OrdersData().CloseTradePartially(trade, 0);
-        else:
-            actual_price = float(apiData.GetActualPrice(instrument));
-            stop_loss_price = float(trade['stopLossOrder']['price']);
-            begining_price = float(trade['price']);
-
-            if trade_type == 1:
-                if begining_price > stop_loss_price:
-                    return;
-                else:
-                    last_candle = apiData.GetLastClosedCandle(instrument, "H1")
-                    if stop_loss_price >= last_candle['low']:
-                        return;
-                    else:
-                        new_stop_loss = last_candle['low'];
-            elif trade_type == -1:
-                if begining_price < stop_loss_price:
-                    return;
-                else:
-                    last_candle = apiData.GetLastClosedCandle(instrument, "H1")
-                    if stop_loss_price <= last_candle['high']:
-                        return;
-                    else:
-                        new_stop_loss = last_candle['high'];
-
-            new_stop_loss = apiData.GetPriceFormatted(new_stop_loss, instrumentsManager.instruments[instrument]['pricePrecision']);
-
-            OrdersData().ModifyStopLoss(trade['stopLossOrder']['id'], trade['id'], str(new_stop_loss));
-            print "Upload stop loss from " + instrument + " to " + str(new_stop_loss);
     else:
-        if CheckPartialClose(trade, instrument, trade_type):
-            print instrument + " A CERRAR A MITAD";
-            OrdersData().CloseTradePartially(trade, 0.5);
-            OrdersData().ModifyStopLoss(trade['stopLossOrder']['id'], trade['id'], trade['price']);
+        if partially_closed:
+            if CheckTotalClose(instrument, trade_type):
+                print instrument + " A CERRAR DEL TODO";
+                OrdersData().CloseTradePartially(trade, 0);
+            else:
+                actual_price = float(apiData.GetActualPrice(instrument));
+                stop_loss_price = float(trade['stopLossOrder']['price']);
+                begining_price = float(trade['price']);
+
+                if trade_type == 1:
+                    if begining_price > stop_loss_price:
+                        return;
+                    else:
+                        last_candle = apiData.GetLastClosedCandle(instrument, "H1")
+                        if stop_loss_price >= last_candle['low']:
+                            return;
+                        else:
+                            new_stop_loss = last_candle['low'];
+                elif trade_type == -1:
+                    if begining_price < stop_loss_price:
+                        return;
+                    else:
+                        last_candle = apiData.GetLastClosedCandle(instrument, "H1")
+                        if stop_loss_price <= last_candle['high']:
+                            return;
+                        else:
+                            new_stop_loss = last_candle['high'];
+
+                new_stop_loss = apiData.GetPriceFormatted(new_stop_loss, instrumentsManager.instruments[instrument]['pricePrecision']);
+
+                OrdersData().ModifyStopLoss(trade['stopLossOrder']['id'], trade['id'], str(new_stop_loss));
+                print "Upload stop loss from " + instrument + " to " + str(new_stop_loss);
+        else:
+            if CheckPartialClose(trade, instrument, trade_type):
+                print instrument + " A CERRAR A MITAD";
+                OrdersData().CloseTradePartially(trade, 0.5);
+                OrdersData().ModifyStopLoss(trade['stopLossOrder']['id'], trade['id'], trade['price']);
 
 
 def CheckTotalClose(instrument, trade_type):
