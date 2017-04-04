@@ -265,12 +265,12 @@ class Ichimoku(object):
         self._calculateIchimokuLines(instrument, actual_price);
 
         if trade_type == 1:
-            if self.ichimoku_dataframe['TENKAN'].iloc[len(self.ichimoku_dataframe['TENKAN'].index) - 1] > float(last_candle['open']):
-                if self.ichimoku_dataframe['TENKAN'].iloc[len(self.ichimoku_dataframe['TENKAN'].index) - 1] > float(last_candle['close']):
-                    return True;
-        else:
             if self.ichimoku_dataframe['TENKAN'].iloc[len(self.ichimoku_dataframe['TENKAN'].index) - 1] < float(last_candle['open']):
                 if self.ichimoku_dataframe['TENKAN'].iloc[len(self.ichimoku_dataframe['TENKAN'].index) - 1] < float(last_candle['close']):
+                    return True;
+        else:
+            if self.ichimoku_dataframe['TENKAN'].iloc[len(self.ichimoku_dataframe['TENKAN'].index) - 1] > float(last_candle['open']):
+                if self.ichimoku_dataframe['TENKAN'].iloc[len(self.ichimoku_dataframe['TENKAN'].index) - 1] > float(last_candle['close']):
                     return True;
 
         return False;
