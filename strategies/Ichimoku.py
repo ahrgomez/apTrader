@@ -249,6 +249,7 @@ class Ichimoku(object):
 
     def CheckPartialClose(self, trade_type, instrument, initial_units, pip_location, actual_value):
         pip_value = self.apiData.GetPipValue(instrument, initial_units, pip_location);
+        print instrument + ": " + pip_value;
 
         if pip_value == 0:
             return False;
