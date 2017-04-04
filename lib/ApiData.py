@@ -186,8 +186,13 @@ class ApiData(object):
 		if currency_change_price == 0:
 			return 0;
 		else:
-			pip_location = math.pow(1, pip_location);
-			print instrument + ": " + str(pip_location)
+			pip_location = pip_location * -1;
+			div = 1;
+			while(pip_location > 0):
+				div = div * 10;
+				pip_location = pip_location - 1;
+
+			pip_location = 1.0 / div;
 			return (pip_location * units) / currency_change_price;
 
 	def GetLastClosedCandle(self, instrument, granularity):
