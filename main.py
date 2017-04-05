@@ -24,10 +24,10 @@ ichimoku = Ichimoku.Ichimoku()
 DEBUG = False;
 
 def main():
-	instruments_list = "";
+	instruments_list = "AUD_CHF,CAD_CHF,NZD_USD,GBP_USD,AUD_USD,EUR_USD,EUR_GBP";
 	instrumentsManager.GetTradeableInstruments();
-	for inst in instrumentsManager.instruments:
-		instruments_list +=  inst + ",";
+	#for inst in instrumentsManager.instruments:
+	#	instruments_list +=  inst + ",";
 
 	while(True):
 		try:
