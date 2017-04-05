@@ -16,6 +16,27 @@ class Ichimoku(object):
         self.apiData = ApiData();
 
     def Verify(self, instrument, actual_price):
+        self._calculateIchimokuLines(instrument);
+
+        last_candle = self.apiData.GetLastClosedCandle(instrument, self.granularity);
+        last_tenkan = self.ichimoku_dataframe['TENKAN'].iloc[len(self.ichimoku_dataframe['TENKAN'].index) - 1];
+
+        if self._isCandleInAValidPosition(last_candle, 1):
+            if self._isPriceTopOfKumo(last_tenkan):
+                if last_candle['open'] < last_tenkan and last_candle['close'] > last_tenkan:
+                    if actual_price > last_candle['close']:
+                        stop_loss_price = self._getStopLossPrice(1);
+                        return 1, stop_loss_price;
+        elif self._isCandleInAValidPosition(last_candle, -1):
+            if self._isPriceBottomOfKumo(last_tenkan):
+                if last_candle['open'] > last_tenkan and last_candle['close'] < last_tenkan:
+                    if actual_price < last_candle['close']:
+                        stop_loss_price = self._getStopLossPrice(-1);
+                        return -1, stop_loss_price;
+
+        return None, -1;
+
+    def Verify1(self, instrument, actual_price):
 
         self._calculateIchimokuLines(instrument, actual_price);
 
@@ -86,13 +107,14 @@ class Ichimoku(object):
 
         return None, -1;
 
-    def _calculateIchimokuLines(self, instrument, actual_price):
+    def _calculateIchimokuLines(self, instrument, actual_price = None):
         dataS5 = self.apiData.GetData(instrument, self.granularity, 500);
 
-        dataS5 = dataS5.append({ 'time': datetime.now(),
-    			'high': actual_price,
-    			'low': actual_price,
-    			'close': actual_price}, ignore_index=True)
+        if actual_price is not None:
+            dataS5 = dataS5.append({ 'time': datetime.now(),
+        			'high': actual_price,
+        			'low': actual_price,
+        			'close': actual_price}, ignore_index=True)
 
         self.ichimoku_dataframe['TENKAN'] = self._calculateMidPoint(dataS5['high'], dataS5['low'], 7);
         self.ichimoku_dataframe['KIJUN'] = self._calculateMidPoint(dataS5['high'], dataS5['low'], 22);

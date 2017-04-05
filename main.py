@@ -25,6 +25,7 @@ DEBUG = False;
 
 def main():
 	instruments_list = "AUD_CHF,CAD_CHF,NZD_USD,GBP_USD,AUD_USD,EUR_USD,EUR_GBP";
+	#instruments_list = "";
 	instrumentsManager.GetTradeableInstruments();
 	#for inst in instrumentsManager.instruments:
 	#	instruments_list +=  inst + ",";
