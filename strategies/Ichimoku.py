@@ -4,7 +4,7 @@ from datetime import datetime
 from numpy import *
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 
 class Ichimoku(object):
 
@@ -68,11 +68,11 @@ class Ichimoku(object):
 
         return None, -1;
 
-    def PrintIchimoku(self, instrument):
-        self._calculateIchimokuLines(instrument);
-
-        self.ichimoku_dataframe.plot();
-        plt.show();
+    #def PrintIchimoku(self, instrument):
+    #    self._calculateIchimokuLines(instrument);
+    #
+    #    self.ichimoku_dataframe.plot();
+    #    plt.show();
 
     def Verify2(self, instrument, actual_price):
 
@@ -110,7 +110,7 @@ class Ichimoku(object):
     def _calculateIchimokuLines(self, instrument, actual_price = None):
         dataS5 = self.apiData.GetData(instrument, self.granularity, 500);
         dataS5 = dataS5.drop(dataS5.index[len(dataS5)-1]);
-        
+
         if actual_price is not None:
             dataS5 = dataS5.append({ 'time': datetime.now(),
         			'high': actual_price,
