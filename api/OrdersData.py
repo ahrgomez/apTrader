@@ -53,7 +53,7 @@ class OrdersData(object):
     	return return_json
 
     def MakeLimitOrder(self, order_id, instrument, price, datetime, units, stop_loss):
-    	order = self._getMarketOrderBody(order_id, instrument, price, datetime, units, stop_loss)
+    	order = self._getLimitOrderBody(order_id, instrument, price, datetime, units, stop_loss)
 
     	url = "https://" + settings.API_DOMAIN + "/v3/accounts/" + settings.ACCOUNT_ID + "/orders"
     	headers = { 'Authorization' : 'Bearer ' + settings.ACCESS_TOKEN }
