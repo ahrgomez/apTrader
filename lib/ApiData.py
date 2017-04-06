@@ -245,9 +245,10 @@ class ApiData(object):
 		msg = json.loads(response.text);
 
 		if msg.has_key("orders") and len(msg['orders']) > 0:
-			for trade in msg['orders']:
-				if trade['instrument'] == instrument and trade['type'] == "LIMIT":
-					return True;
+			for order in msg['orders']:
+				if order.has_key("instrument")
+					if order['instrument'] == instrument and order['type'] == "LIMIT":
+						return True;
 
 		return False;
 
