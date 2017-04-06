@@ -230,6 +230,27 @@ class ApiData(object):
 
 		return False;
 
+	def ExistsOrderOfInstrument(self, instrument):
+		url = "https://" + settings.API_DOMAIN + "/v3/accounts/" + settings.ACCOUNT_ID + "/pendingOrders"
+		headers = { 'Authorization' : 'Bearer ' + settings.ACCESS_TOKEN }
+
+		s = requests.Session()
+		req = requests.Request('GET', url, headers = headers)
+		pre = req.prepare()
+		response = s.send(pre, stream = False, verify = False)
+
+		if response.status_code != 200:
+			raise Exception('ExistsTradeOfInstrument: ' + response.text)
+
+		msg = json.loads(response.text);
+
+		if msg.has_key("orders") and len(msg['orders']) > 0:
+			for trade in msg['orders']:
+				if trade['instrument'] == instrument and trade['type'] == "LIMIT":
+					return True;
+
+		return False;
+
 	def GetClosedTrades(self):
 		url = "https://" + settings.API_DOMAIN + "/v3/accounts/" + settings.ACCOUNT_ID + "/trades"
 		headers = { 'Authorization' : 'Bearer ' + settings.ACCESS_TOKEN }
