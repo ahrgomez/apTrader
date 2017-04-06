@@ -24,17 +24,15 @@ class Ichimoku(object):
         if self._isCandleInAValidPosition(last_candle, 1):
             if self._isPriceTopOfKumo(last_tenkan):
                 if last_candle['open'] < last_tenkan and last_candle['close'] > last_tenkan:
-                    if actual_price > last_candle['close']:
-                        stop_loss_price = self._getStopLossPrice(1);
-                        return 1, stop_loss_price;
+                    stop_loss_price = self._getStopLossPrice(1);
+                    return 1, -1, stop_loss_price;
         elif self._isCandleInAValidPosition(last_candle, -1):
             if self._isPriceBottomOfKumo(last_tenkan):
                 if last_candle['open'] > last_tenkan and last_candle['close'] < last_tenkan:
-                    if actual_price < last_candle['close']:
-                        stop_loss_price = self._getStopLossPrice(-1);
-                        return -1, stop_loss_price;
+                    stop_loss_price = self._getStopLossPrice(-1);
+                    return -1, last_candle['close'], stop_loss_price;
 
-        return None, -1;
+        return None, -1, -1;
 
     def Verify1(self, instrument, actual_price):
 
@@ -252,9 +250,9 @@ class Ichimoku(object):
 
     def _isEquilibriumZone(self, index):
         actual_value = self.ichimoku_dataframe['KIJUN'].iloc[len(self.ichimoku_dataframe['KIJUN'].index) - index];
-        value_at_6 = self.ichimoku_dataframe['KIJUN'].iloc[len(self.ichimoku_dataframe['KIJUN'].index) - index - 6];
+        value_at_1 = self.ichimoku_dataframe['KIJUN'].iloc[len(self.ichimoku_dataframe['KIJUN'].index) - index - 1];
 
-        if actual_value == value_at_6:
+        if actual_value == value_at_1:
             return True;
         else:
             return False;

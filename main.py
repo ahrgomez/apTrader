@@ -70,11 +70,11 @@ def main():
 			pass;
 
 def ProcessPrice(instrument, price):
-	check_result, stop_loss_price = ichimoku.Verify(instrument, price)
+	check_result, entry_price, stop_loss_price = ichimoku.Verify(instrument, price)
 	if check_result is None:
 		return
 
-	if PutOrder(check_result, instrument, price, stop_loss_price):
+	if PutOrder(check_result, instrument, entry_price, stop_loss_price):
 		return check_result;
 	else:
 		return None;
@@ -97,7 +97,7 @@ def PutOrder(order_type, instrument, price, stop_loss):
 
 		total_units = order_type * float(units);
 
-		result = OrdersData().MakeMarketOrder(order_id, instrument, date, total_units, stop_loss)
+		result = OrdersData().MakeLimitOrder(order_id, instrument, price, date, total_units, stop_loss)
 
 		if result == True:
 			print "Made " + instrument + " order with id " + order_id + " with " + str(order_type * units) + " units"

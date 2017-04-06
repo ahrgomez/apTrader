@@ -52,6 +52,53 @@ class OrdersData(object):
 
     	return return_json
 
+    def MakeLimitOrder(self, order_id, instrument, price, datetime, units, stop_loss):
+    	order = self._getMarketOrderBody(order_id, instrument, price, datetime, units, stop_loss)
+
+    	url = "https://" + settings.API_DOMAIN + "/v3/accounts/" + settings.ACCOUNT_ID + "/orders"
+    	headers = { 'Authorization' : 'Bearer ' + settings.ACCESS_TOKEN }
+
+    	s = requests.Session()
+    	req = requests.Request('POST', url, headers = headers, json={ "order": order })
+
+    	pre = req.prepare()
+    	response = s.send(pre, stream = False, verify = False)
+
+    	if response.status_code != 201:
+    		raise Exception('api.OrdersData.MakeMarketOrder: Instrument: ' + instrument + ' units: ' + str(units) + ' stop_loss: ' + str(stop_loss) + ' Response: ' + response.text)
+
+    	msg = json.loads(response.text)
+
+    	if msg.has_key('orderFillTransaction'):
+    		return True
+    	else:
+    		return False
+
+    def _getLimitOrderBody(self, order_id, instrument, price, datetime, units, stop_loss):
+    	order_type = "LIMIT";
+    	order_time_in_force = "GTC";
+    	order_position_fill = "DEFAULT";
+
+    	client_extension = {};
+    	client_extension['id'] = order_id;
+    	client_extension['tag'] = instrument + "_" + str(datetime);
+    	client_extension['comment'] = instrument + "_" + str(datetime);
+
+    	stop_loss_details = {};
+    	stop_loss_details['price'] = str(stop_loss);
+    	stop_loss_details['clientExtension'] = client_extension;
+
+    	return_json = {};
+    	return_json['type'] = order_type;
+    	return_json['instrument'] = instrument;
+        return_json['timeInForce'] = order_time_in_force;
+    	return_json['units'] = str(units);
+        return_json['price'] = str(price);
+    	return_json['clientExtensions'] = client_extension;
+    	return_json['stopLossOnFill'] = stop_loss_details;
+
+    	return return_json;
+
     def ModifyStopLoss(self, trade_id, stop_loss_id, new_stop_loss):
     	url = "https://" + settings.API_DOMAIN + "/v3/accounts/" + settings.ACCOUNT_ID + "/orders/" + trade_id;
     	headers = { 'Authorization' : 'Bearer ' + settings.ACCESS_TOKEN }
