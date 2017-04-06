@@ -5,6 +5,8 @@ import json
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
+from datetime import datetime, timedelta
+
 class OrdersData(object):
 
     def MakeMarketOrder(self, order_id, instrument, datetime, units, stop_loss):
@@ -76,8 +78,10 @@ class OrdersData(object):
 
     def _getLimitOrderBody(self, order_id, instrument, price, datetime, units, stop_loss):
     	order_type = "LIMIT";
-    	order_time_in_force = "GTC";
+    	order_time_in_force = "GTD";
     	order_position_fill = "DEFAULT";
+        time_to_cancel = datetime.now() + timedelta(hours=2);
+        time_to_cancel = time_to_cancel.isoformat('T');
 
     	client_extension = {};
     	client_extension['id'] = order_id;
@@ -92,6 +96,7 @@ class OrdersData(object):
     	return_json['type'] = order_type;
     	return_json['instrument'] = instrument;
         return_json['timeInForce'] = order_time_in_force;
+        return_json['gtdTime'] = time_to_cancel;
     	return_json['units'] = str(units);
         return_json['price'] = str(price);
     	return_json['clientExtensions'] = client_extension;
