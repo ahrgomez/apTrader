@@ -25,7 +25,7 @@ class Ichimoku(object):
             if self._isPriceTopOfKumo(last_tenkan):
                 if last_candle['open'] < last_tenkan and last_candle['close'] > last_tenkan:
                     stop_loss_price = self._getStopLossPrice(1);
-                    return 1, -1, stop_loss_price;
+                    return 1, last_candle['close'], stop_loss_price;
         elif self._isCandleInAValidPosition(last_candle, -1):
             if self._isPriceBottomOfKumo(last_tenkan):
                 if last_candle['open'] > last_tenkan and last_candle['close'] < last_tenkan:
@@ -35,7 +35,6 @@ class Ichimoku(object):
         return None, -1, -1;
 
     def Verify1(self, instrument, actual_price):
-
         self._calculateIchimokuLines(instrument, actual_price);
 
         if self._isEquilibriumZone(1):
