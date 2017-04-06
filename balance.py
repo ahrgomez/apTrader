@@ -23,9 +23,9 @@ def main():
 
 		if datetime_object.date() < datetime.today().date():
 			continue;
-			
-		if datetime_object.hour < 10:
-			continue;
+
+		#if datetime_object.hour < 10:
+		#	continue;
 
 		value = float(trade['realizedPL']);
 		financing = float(trade['financing']);
