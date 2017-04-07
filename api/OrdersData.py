@@ -80,7 +80,7 @@ class OrdersData(object):
     	order_type = "MARKET_IF_TOUCHED";
     	order_time_in_force = "GTD";
     	order_position_fill = "DEFAULT";
-        time_to_cancel = datetime.now() + timedelta(hours=2);
+        time_to_cancel = datetime.now() + timedelta(hours=1);
         time_to_cancel = str(time_to_cancel.isoformat('T')) + "Z";
 
     	client_extension = {};
