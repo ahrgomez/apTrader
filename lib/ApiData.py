@@ -247,7 +247,7 @@ class ApiData(object):
 		if msg.has_key("orders") and len(msg['orders']) > 0:
 			for order in msg['orders']:
 				if order.has_key("instrument"):
-					if order['instrument'] == instrument and order['type'] == "LIMIT":
+					if order['instrument'] == instrument and order['type'] == "MARKET_IF_TOUCHED":
 						return True;
 
 		return False;
