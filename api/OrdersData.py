@@ -77,7 +77,7 @@ class OrdersData(object):
     		return False
 
     def _getLimitOrderBody(self, order_id, instrument, price, datetime, units, stop_loss):
-    	order_type = "LIMIT";
+    	order_type = "MARKET_IF_TOUCHED";
     	order_time_in_force = "GTD";
     	order_position_fill = "DEFAULT";
         time_to_cancel = datetime.now() + timedelta(hours=2);

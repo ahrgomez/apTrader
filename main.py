@@ -74,12 +74,12 @@ def ProcessPrice(instrument, price):
 	if check_result is None:
 		return
 
-	if PutOrder(check_result, instrument, entry_price, stop_loss_price):
+	if PutOrder(check_result, instrument, entry_price, price, stop_loss_price):
 		return check_result;
 	else:
 		return None;
 
-def PutOrder(order_type, instrument, price, stop_loss):
+def PutOrder(order_type, instrument, entry_price, price, stop_loss):
 	if not apiData.ExistsTradeOfInstrument(instrument) and not apiData.ExistsOrderOfInstrument(instrument):
 		date = datetime.now()
 		units = apiData.GetUnitsForPrice(50, instrument, instrumentsManager.instruments[instrument]['precision'], instrumentsManager.instruments[instrument]['rate']);
@@ -97,7 +97,20 @@ def PutOrder(order_type, instrument, price, stop_loss):
 
 		total_units = order_type * float(units);
 
-		result = OrdersData().MakeLimitOrder(order_id, instrument, price, date, total_units, stop_loss)
+		entry_price = apiData.GetPriceFormatted(entry_price, instrumentsManager.instruments[instrument]['pricePrecision']);
+
+		result = False;
+
+		if order_type == 1:
+			if entry_price < price:
+				result = OrdersData().MakeMarketOrder(order_id, instrument, date, total_units, stop_loss);
+			else:
+				result = OrdersData().MakeLimitOrder(order_id, instrument, entry_price, date, total_units, stop_loss);
+		else:
+			if entry_price > price:
+				result = OrdersData().MakeMarketOrder(order_id, instrument, date, total_units, stop_loss);
+			else:
+				result = OrdersData().MakeLimitOrder(order_id, instrument, entry_price, date, total_units, stop_loss);
 
 		if result == True:
 			print "Made " + instrument + " order with id " + order_id + " with " + str(order_type * units) + " units"
