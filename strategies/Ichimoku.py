@@ -18,6 +18,9 @@ class Ichimoku(object):
     def Verify(self, instrument, actual_price):
         self._calculateIchimokuLines(instrument);
 
+        if self._isEquilibriumZone(1):
+            return None, -1, -1;
+
         last_candle = self.apiData.GetLastClosedCandle(instrument, self.granularity);
         last_tenkan = self.ichimoku_dataframe['TENKAN'].iloc[len(self.ichimoku_dataframe['TENKAN'].index) - 1];
 
@@ -251,9 +254,9 @@ class Ichimoku(object):
 
     def _isEquilibriumZone(self, index):
         actual_value = self.ichimoku_dataframe['KIJUN'].iloc[len(self.ichimoku_dataframe['KIJUN'].index) - index];
-        value_at_1 = self.ichimoku_dataframe['KIJUN'].iloc[len(self.ichimoku_dataframe['KIJUN'].index) - index - 1];
+        value_at_3 = self.ichimoku_dataframe['KIJUN'].iloc[len(self.ichimoku_dataframe['KIJUN'].index) - index - 3];
 
-        if actual_value == value_at_1:
+        if actual_value == value_at_3:
             return True;
         else:
             return False;
