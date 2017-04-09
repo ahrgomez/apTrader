@@ -4,6 +4,8 @@ from datetime import datetime
 from numpy import *
 import numpy as np
 import pandas as pd
+
+from math import atan2, degrees, pi
 #import matplotlib.pyplot as plt
 
 class Ichimoku(object):
@@ -17,9 +19,6 @@ class Ichimoku(object):
 
     def Verify(self, instrument, actual_price):
         self._calculateIchimokuLines(instrument);
-
-        if self._isEquilibriumZone(1):
-            return None, -1, -1;
 
         last_candle = self.apiData.GetLastClosedCandle(instrument, self.granularity);
         last_tenkan = self.ichimoku_dataframe['TENKAN'].iloc[len(self.ichimoku_dataframe['TENKAN'].index) - 1];
@@ -261,6 +260,39 @@ class Ichimoku(object):
         else:
             return False;
 
+    def _calculateTenkanDegrees(self, instrument):
+        self._calculateIchimokuLines(instrument);
+
+        dataS5 = self.apiData.GetData(instrument, self.granularity, 500);
+        dataS5 = dataS5.drop(dataS5.index[len(dataS5)-1]);
+
+        actual_price = self.apiData.GetActualPrice(instrument);
+
+        dataS5 = dataS5.append({ 'time': datetime.now(),
+    			'high': actual_price,
+    			'low': actual_price,
+    			'close': actual_price}, ignore_index=True)
+
+        tenkan_aux = self._calculateMidPoint(dataS5['high'], dataS5['low'], 22);
+
+        last_tenkan = self.ichimoku_dataframe['KIJUN'].iloc[len(self.ichimoku_dataframe['KIJUN'].index) - 200];
+        actual_tenkan = tenkan_aux.iloc[len(tenkan_aux.index) - 1];
+
+        dx = actual_tenkan - last_tenkan
+        dy = actual_tenkan - last_tenkan
+        rads = atan2(last_tenkan, actual_tenkan)
+        degs = degrees(rads)
+
+        if degs > 45.0:
+            degs = degs - 45.0;
+            degs = degs * 100.0;
+        elif degs < 45.0:
+            degs = 45.0 - degs;
+            degs = degs * 100;
+        else:
+            degs = 0;
+
+        return degs;
     def _isCandleInAValidPosition(self, candle, cross_value):
         if cross_value == 1:
             if self._isPriceTopOfKumo(candle['high']) == True and self._isPriceTopOfKumo(candle['low']) == True:
