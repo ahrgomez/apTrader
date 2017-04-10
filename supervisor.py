@@ -79,7 +79,7 @@ def CheckToCloseTrade(trade, instrument, trade_type, partially_closed):
             OrdersData().ModifyStopLoss(trade['stopLossOrder']['id'], trade['id'], trade['price']);
 
 def CheckTraillingStop(trade, trade_type):
-    instrument = trade['instruemnt']
+    instrument = trade['instrument']
     actual_price = float(apiData.GetActualPrice(instrument));
     stop_loss_price = float(trade['stopLossOrder']['price']);
     begining_price = float(trade['price']);
