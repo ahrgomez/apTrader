@@ -26,13 +26,15 @@ class Ichimoku(object):
         if self._isCandleInAValidPosition(last_candle, 1):
             if self._isPriceTopOfKumo(last_tenkan):
                 if last_candle['open'] < last_tenkan and last_candle['close'] > last_tenkan:
-                    stop_loss_price = self._getStopLossPrice(1);
+                    middle = (last_candle['close'] - last_candle['open']) / 2;
+                    stop_loss_price = last_candle['low'] - middle;
                     entry_price = last_candle['close'] + ((last_candle['close'] - last_candle['open']) / 2);
                     return 1, entry_price, stop_loss_price;
         elif self._isCandleInAValidPosition(last_candle, -1):
             if self._isPriceBottomOfKumo(last_tenkan):
                 if last_candle['open'] > last_tenkan and last_candle['close'] < last_tenkan:
-                    stop_loss_price = self._getStopLossPrice(-1);
+                    middle = (last_candle['open'] - last_candle['close']) / 2;
+                    stop_loss_price = last_candle['high'] + middle;
                     entry_price = last_candle['close'] - ((last_candle['open'] - last_candle['close']) / 2);
                     return -1, entry_price, stop_loss_price;
 
