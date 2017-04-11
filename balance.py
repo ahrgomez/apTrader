@@ -21,16 +21,21 @@ def main():
 	for trade in apiData.GetClosedTrades():
 		datetime_object = parser.parse(trade['closeTime']);
 
+
+		d=datetime.strptime('06:00','%H:%M')
+
 		if datetime_object.date() < datetime.today().date():
 			continue;
 
-		if datetime_object.hour < 10:
+		if datetime_object.time() < d.time():
 			continue;
 
 		value = float(trade['realizedPL']);
 		financing = float(trade['financing']);
 
 		value = value + financing;
+
+		print trade['instrument'] + ": " + str(value);
 
 		if(value < 0):
 			value = value * -1;

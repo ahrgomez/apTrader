@@ -37,7 +37,7 @@ class InstrumentsManager(object):
                         'pipLocation': int(instrument['pipLocation']),
                 		'max': instrument['maximumOrderUnits']
                 	}
-                )
+                );
 
     def GetPrecision(self, instrument):
         return self.instruments[instrument]['precision'];
