@@ -74,6 +74,9 @@ def ProcessPrice(instrument, price):
 	if check_result is None:
 		return
 
+	if apiData.GetMarginUsed() >= 400:
+		return
+
 	if PutOrder(check_result, instrument, entry_price, price, stop_loss_price):
 		return check_result;
 	else:

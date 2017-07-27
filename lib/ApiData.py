@@ -209,6 +209,25 @@ class ApiData(object):
 
 		return last_candle;
 
+	def GetMarginUsed(self):
+		url = "https://" + settings.API_DOMAIN + "/v3/accounts/" + settings.ACCOUNT_ID"
+		headers = {'Authorization': 'Bearer ' + settings.ACCESS_TOKEN}
+
+		s = requests.Session()
+		req = requests.Request('GET', url, headers=headers)
+		pre = req.prepare()
+		response = s.send(pre, stream=False, verify=False)
+
+		if response.status_code != 200:
+			raise Exception('GetMarginUsed: ' + response.text)
+
+		msg = json.loads(response.text);
+
+		if msg.has_key("marginUsed"):
+			return int(msg['marginUsed']);
+		else:
+			return 0;
+
 	def ExistsTradeOfInstrument(self, instrument):
 		url = "https://" + settings.API_DOMAIN + "/v3/accounts/" + settings.ACCOUNT_ID + "/openTrades"
 		headers = { 'Authorization' : 'Bearer ' + settings.ACCESS_TOKEN }
