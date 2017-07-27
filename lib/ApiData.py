@@ -210,7 +210,7 @@ class ApiData(object):
 		return last_candle;
 
 	def GetMarginUsed(self):
-		url = "https://" + settings.API_DOMAIN + "/v3/accounts/" + settings.ACCOUNT_ID"
+		url = "https://" + settings.API_DOMAIN + "/v3/accounts/" + settings.ACCOUNT_ID
 		headers = {'Authorization': 'Bearer ' + settings.ACCESS_TOKEN}
 
 		s = requests.Session()
