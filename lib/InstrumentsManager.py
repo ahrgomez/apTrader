@@ -19,14 +19,7 @@ class InstrumentsManager(object):
     def GetTradeableInstruments(self):
     	for instrument in self.apiData.GetAllInstrumentsTradeable()['instruments']:
             if (
-                instrument['type'] != 'METAL'
-                and instrument['type'] != 'CFD'
-                and ('SAR' not in instrument['name'])
-                and ('INR' not in instrument['name'])
-                and ('CNH' not in instrument['name'])
-                and ('THB' not in instrument['name'])
-                and ('MXN' not in instrument['name'])
-                and ('DKK' not in instrument['name'])
+                'EUR' in instrument['name']
             ):
                 self.Add(instrument['name'],
                 	{
