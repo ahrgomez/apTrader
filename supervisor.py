@@ -14,10 +14,15 @@ apiData = ApiData()
 instrumentsManager = InstrumentsManager({})
 ichimoku = Ichimoku()
 
-DEBUG = False;
+DEBUG = True;
 
 def main():
     instrumentsManager.GetTradeableInstruments();
+
+    if DEBUG:
+        print "----------------"
+        print "Init supervisor"
+        print "----------------"
 
     while(True):
         try:
@@ -25,11 +30,6 @@ def main():
 				print "BOLSA CERRADA";
 				sleep(60);
 				continue;
-
-            if DEBUG:
-                print "----------------"
-                print "Init supervisor"
-                print "----------------"
 
             InitProcess();
         except KeyboardInterrupt:

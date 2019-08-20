@@ -10,14 +10,60 @@ from math import atan2, degrees, pi
 
 class Ichimoku(object):
 
-    apiData = {};
-    ichimoku_dataframe = pd.DataFrame();
-    granularity = "H1";
+    apiData = {}
+    ichimoku_dataframe = pd.DataFrame()
+    granularity = "H1"
 
     def __init__(self):
-        self.apiData = ApiData();
+        self.apiData = ApiData()
 
     def Verify(self, instrument, actual_price):
+        self._calculateIchimokuLines(instrument)
+
+        last_candle = self.apiData.GetLastClosedCandle(instrument, self.granularity);
+        last_tenkan = self.ichimoku_dataframe['TENKAN'].iloc[len(self.ichimoku_dataframe['TENKAN'].index) - 1]
+        last_senkou_a = self.ichimoku_dataframe['SENKOU_A'].iloc[len(self.ichimoku_dataframe['SENKOU_A'].index) - 1]
+        last_senkou_b = self.ichimoku_dataframe['SENKOU_B'].iloc[len(self.ichimoku_dataframe['SENKOU_B'].index) - 1]
+
+        if self._isPriceTopOfKumo(last_candle['close']) and self._isPriceTopOfKumo(last_tenkan):
+            if last_senkou_a > last_senkou_b:
+                cross_senkou_point, cross_senkou_value, candles_of_cross_senkou = self._getLastCross(self.ichimoku_dataframe['PRICE'],
+                                                                                self.ichimoku_dataframe['SENKOU_A'])
+            else:
+                cross_senkou_point, cross_senkou_value, candles_of_cross_senkou = self._getLastCross(self.ichimoku_dataframe['PRICE'],
+                                                                                self.ichimoku_dataframe['SENKOU_B'])
+
+            cross_point, cross_value, candles_of_cross = self._getLastCross(self.ichimoku_dataframe['PRICE'],
+                                                                            self.ichimoku_dataframe['TENKAN']);
+
+            cross_delta = candles_of_cross_senkou - candles_of_cross
+
+            if cross_delta > 0 and cross_delta < 6 and cross_senkou_value == 1 and cross_value == 1 and self._isCandleInAValidPosition(last_candle, 1):
+                middle = (last_candle['close'] - last_candle['open']) / 2
+                stop_loss_price = last_candle['low'] - middle
+                entry_price = last_candle['close'] + ((last_candle['close'] - last_candle['open']) / 2)
+                return 1, entry_price, stop_loss_price
+        elif self._isPriceBottomOfKumo(last_candle['close']) and self._isPriceBottomOfKumo(last_tenkan):
+            if last_senkou_a < last_senkou_b:
+                cross_senkou_point, cross_senkou_value, candles_of_cross_senkou = self._getLastCross(self.ichimoku_dataframe['PRICE'],
+                                                                                self.ichimoku_dataframe['SENKOU_A'])
+            else:
+                cross_senkou_point, cross_senkou_value, candles_of_cross_senkou = self._getLastCross(self.ichimoku_dataframe['PRICE'],
+                                                                                self.ichimoku_dataframe['SENKOU_B'])
+            cross_point, cross_value, candles_of_cross = self._getLastCross(self.ichimoku_dataframe['PRICE'],
+                                                                            self.ichimoku_dataframe['TENKAN']);
+
+            cross_delta = candles_of_cross_senkou - candles_of_cross
+
+            if cross_delta > 0 and cross_delta < 6 and cross_senkou_value == -1 and cross_value == -1 and self._isCandleInAValidPosition(last_candle, -1):
+                middle = (last_candle['open'] - last_candle['close']) / 2
+                stop_loss_price = last_candle['high'] + middle
+                entry_price = last_candle['close'] - ((last_candle['open'] - last_candle['close']) / 2);
+                return -1, entry_price, stop_loss_price
+
+        return None, -1, -1
+
+    def Verify3(self, instrument, actual_price):
         self._calculateIchimokuLines(instrument);
 
         last_candle = self.apiData.GetLastClosedCandle(instrument, self.granularity);
@@ -26,17 +72,21 @@ class Ichimoku(object):
         if self._isCandleInAValidPosition(last_candle, 1):
             if self._isPriceTopOfKumo(last_tenkan):
                 if last_candle['open'] < last_tenkan and last_candle['close'] > last_tenkan:
-                    middle = (last_candle['close'] - last_candle['open']) / 2;
-                    stop_loss_price = last_candle['low'] - middle;
-                    entry_price = last_candle['close'] + ((last_candle['close'] - last_candle['open']) / 2);
-                    return 1, entry_price, stop_loss_price;
+                    cross_point, cross_value, candles_of_cross = self._getLastCross(self.ichimoku_dataframe['PRICE'], self.ichimoku_dataframe['TENKAN']);
+                    if cross_value == 1 and candles_of_cross < 6:
+                        middle = (last_candle['close'] - last_candle['open']) / 2;
+                        stop_loss_price = last_candle['low'] - middle;
+                        entry_price = last_candle['close'] + ((last_candle['close'] - last_candle['open']) / 2);
+                        return 1, entry_price, stop_loss_price;
         elif self._isCandleInAValidPosition(last_candle, -1):
             if self._isPriceBottomOfKumo(last_tenkan):
                 if last_candle['open'] > last_tenkan and last_candle['close'] < last_tenkan:
-                    middle = (last_candle['open'] - last_candle['close']) / 2;
-                    stop_loss_price = last_candle['high'] + middle;
-                    entry_price = last_candle['close'] - ((last_candle['open'] - last_candle['close']) / 2);
-                    return -1, entry_price, stop_loss_price;
+                    cross_point, cross_value, candles_of_cross = self._getLastCross(self.ichimoku_dataframe['PRICE'], self.ichimoku_dataframe['TENKAN']);
+                    if cross_value == -1 and candles_of_cross < 6:
+                        middle = (last_candle['open'] - last_candle['close']) / 2;
+                        stop_loss_price = last_candle['high'] + middle;
+                        entry_price = last_candle['close'] - ((last_candle['open'] - last_candle['close']) / 2);
+                        return -1, entry_price, stop_loss_price;
 
         return None, -1, -1;
 

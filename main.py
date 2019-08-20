@@ -14,6 +14,7 @@ import json
 from datetime import datetime
 from time import sleep
 
+
 apiData = ApiData()
 instrumentsManager = InstrumentsManager({})
 errorsManagement = Client('https://7932a7da676c4962895957059416bd7d:da9a1669ee724bb2b61cf7b47b430ccc@sentry.io/154029')
@@ -21,7 +22,7 @@ errorsManagement = Client('https://7932a7da676c4962895957059416bd7d:da9a1669ee72
 #Strategies
 ichimoku = Ichimoku.Ichimoku()
 
-DEBUG = False;
+DEBUG = True;
 
 def main():
 	#instruments_list = "AUD_CHF,CAD_CHF,NZD_USD,GBP_USD,AUD_USD,EUR_USD,EUR_GBP";
