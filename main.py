@@ -22,7 +22,7 @@ errorsManagement = Client('https://7932a7da676c4962895957059416bd7d:da9a1669ee72
 #Strategies
 ichimoku = Ichimoku.Ichimoku()
 
-DEBUG = True;
+DEBUG = False;
 
 def main():
 	#instruments_list = "AUD_CHF,CAD_CHF,NZD_USD,GBP_USD,AUD_USD,EUR_USD,EUR_GBP";
