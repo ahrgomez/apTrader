@@ -19,9 +19,10 @@ DEBUG = True;
 def main():
     instrumentsManager.GetTradeableInstruments();
 
-    print "----------------"
-    print "Init supervisor"
-    print "----------------"
+    if DEBUG:
+        print "----------------"
+        print "Init supervisor"
+        print "----------------"
 
     while(True):
         try:

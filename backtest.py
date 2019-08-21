@@ -25,62 +25,48 @@ ichimoku = Ichimoku.Ichimoku()
 DEBUG = True;
 
 def main():
-	#instruments_list = "AUD_CHF,CAD_CHF,NZD_USD,GBP_USD,AUD_USD,EUR_USD,EUR_GBP";
-	instruments_list = "";
-	instrumentsManager.GetTradeableInstruments();
-	for inst in instrumentsManager.instruments:
-		instruments_list +=  inst + ",";
 
-	while(True):
-		try:
-			if IsForbiddenTime():
-				print "BOLSA CERRADA";
-				sleep(60);
-				continue;
+	try:
+		instrument = 'EUR_CAD'
+		candles = apiData.GetData(instrument, 'H1', 50000)
 
-			pricesStream = PricesStream();
+		start = 100
 
-			for tick in pricesStream.GetStreamingData(instruments_list):
-				if IsForbiddenTime():
-					print "BOLSA CERRADA";
-					sleep(60);
-					break;
+		for index, candle in candles.iterrows():
 
-				instrument = tick['instrument']
-				price = tick['price']
+			instrument_part_A = instrument.split('_')[0];
+			instrument_part_A = instrument_part_A.encode('ascii', 'ignore');
+			instrument_part_B = instrument.split('_')[1];
+			instrument_part_B = instrument_part_B.encode('ascii', 'ignore');
 
-				instrument_part_A = instrument.split('_')[0];
-				instrument_part_A = instrument_part_A.encode('ascii','ignore');
-				instrument_part_B = instrument.split('_')[1];
-				instrument_part_B = instrument_part_B.encode('ascii','ignore');
+			instrument = instrument_part_A + '_' + instrument_part_B;
 
-				instrument = instrument_part_A + '_' + instrument_part_B;
+			result = ProcessPrice(instrument, candles.head(start));
+			start = start + 1
 
-				result = ProcessPrice(instrument, price);
-				if DEBUG:
-					if result == 1:
-						print instrument + ": " + "LONG"
-					elif result == -1:
-						print instrument + ": " + "SHORT"
-		except KeyboardInterrupt:
-			break;
-		except:
-			errorsManagement.captureException();
-			pass;
+			if DEBUG:
+				if result == 1:
+					print instrument + ": " + "LONG"
+				elif result == -1:
+					print instrument + ": " + "SHORT"
+	except KeyboardInterrupt:
+		return
+	except:
+		errorsManagement.captureException();
+		pass;
 
 def ProcessPrice(instrument, price):
-	check_result, entry_price, stop_loss_price, time = ichimoku.Verify(instrument)
+	check_result, entry_price, stop_loss_price, time = ichimoku.Verify(instrument, price)
 	if check_result is None:
 		return
 
-	if apiData.GetMarginUsed() >= 400:
-		return
+	print time + ": " + str(entry_price) + "/" + str(stop_loss_price)
+	return check_result;
 
-	if PutOrder(check_result, instrument, entry_price, price, stop_loss_price):
-		print time + ": " + str(entry_price) + "/" + str(stop_loss_price)
-		return check_result;
-	else:
-		return None;
+	#if PutOrder(check_result, instrument, entry_price, price, stop_loss_price):
+	#	return check_result;
+	#else:
+	#	return None;
 
 def PutOrder(order_type, instrument, entry_price, price, stop_loss):
 	if not apiData.ExistsTradeOfInstrument(instrument) and not apiData.ExistsOrderOfInstrument(instrument):
