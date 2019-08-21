@@ -24,14 +24,18 @@ class Ichimoku(object):
         last_candle, last_candle_index = self.apiData.GetLastClosedCandle(instrument, self.granularity, candles);
         last_tenkan = self.ichimoku_dataframe['TENKAN'].iloc[len(self.ichimoku_dataframe['TENKAN'].index) - 1]
 
-        previous_two_candles = candles.tail(3)
+        previous_two_candles = candles.tail(2)
         previous_two_candles = previous_two_candles.drop(previous_two_candles.index[len(previous_two_candles)-1])
 
         entry_type, entry_price = self._strategy(previous_two_candles, last_candle, last_tenkan)
 
         if entry_type is not None:
+
             last_candles = candles.tail(20)
-            stop_loss_price = last_candles['low'].min()
+            if entry_type == 1:
+                stop_loss_price = last_candles['low'].min()
+            elif entry_type == -1:
+                stop_loss_price = last_candles['high'].max()
 
             return entry_type, entry_price, stop_loss_price, last_candle['time']
 
@@ -42,9 +46,13 @@ class Ichimoku(object):
         last_senkou_b = self.ichimoku_dataframe['SENKOU_B'].iloc[len(self.ichimoku_dataframe['SENKOU_B'].index) - 1]
 
         if self._getCandlePositionFromKumo(last_candle) == 1 and self._isPriceTopOfKumo(last_tenkan) and self._candleIsCrossing(last_candle, last_tenkan) == 1 and self._isCandleInAValidPosition(last_candle, 1):
-            if previous_two_candles.iloc[0]['high'] < last_tenkan and previous_two_candles.iloc[0]['low'] < last_tenkan and  previous_two_candles.iloc[1]['high'] < last_tenkan and previous_two_candles.iloc[1]['low'] < last_tenkan:
+            if previous_two_candles.iloc[0]['high'] < last_tenkan and previous_two_candles.iloc[0]['low'] < last_tenkan:# and  previous_two_candles.iloc[1]['high'] < last_tenkan and previous_two_candles.iloc[1]['low'] < last_tenkan:
                 entry_price = last_candle['close']# + ((last_candle['close'] - last_candle['open']) / 2)
                 return 1, entry_price
+        elif self._getCandlePositionFromKumo(last_candle) == -1 and self._isPriceBottomOfKumo(last_tenkan) and self._candleIsCrossing(last_candle, last_tenkan) == -1 and self._isCandleInAValidPosition(last_candle, -1):
+            if previous_two_candles.iloc[0]['high'] > last_tenkan and previous_two_candles.iloc[0]['low'] > last_tenkan:# and  previous_two_candles.iloc[1]['high'] > last_tenkan and previous_two_candles.iloc[1]['low'] > last_tenkan:
+                entry_price = last_candle['close']# + ((last_candle['close'] - last_candle['open']) / 2)
+                return -1, entry_price
 
         return None, -1
 
