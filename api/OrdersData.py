@@ -9,131 +9,142 @@ from datetime import datetime, timedelta
 
 class OrdersData(object):
 
-    def MakeMarketOrder(self, order_id, instrument, datetime, units, stop_loss):
-    	order = self._getMarketOrderBody(order_id, instrument, datetime, units, stop_loss)
+	def MakeMarketOrder(self, order_id, instrument, datetime, units, stop_loss):
+		order = self._getMarketOrderBody(order_id, instrument, datetime, units, stop_loss)
 
-    	url = "https://" + settings.API_DOMAIN + "/v3/accounts/" + settings.ACCOUNT_ID + "/orders"
-    	headers = { 'Authorization' : 'Bearer ' + settings.ACCESS_TOKEN }
+		url = "https://" + settings.API_DOMAIN + "/v3/accounts/" + settings.ACCOUNT_ID + "/orders"
+		headers = { 'Authorization' : 'Bearer ' + settings.ACCESS_TOKEN }
 
-    	s = requests.Session()
-    	req = requests.Request('POST', url, headers = headers, json={ "order": order })
+		s = requests.Session()
+		req = requests.Request('POST', url, headers = headers, json={ "order": order })
 
-    	pre = req.prepare()
-    	response = s.send(pre, stream = False, verify = False)
+		pre = req.prepare()
+		response = s.send(pre, stream = False, verify = False)
 
-    	if response.status_code != 201:
-    		raise Exception('api.OrdersData.MakeMarketOrder: Instrument: ' + instrument + ' units: ' + str(units) + ' stop_loss: ' + str(stop_loss) + ' Response: ' + response.text)
+		if response.status_code != 201:
+			raise Exception('api.OrdersData.MakeMarketOrder: Instrument: ' + instrument + ' units: ' + str(units) + ' stop_loss: ' + str(stop_loss) + ' Response: ' + response.text)
 
-    	msg = json.loads(response.text)
+		msg = json.loads(response.text)
 
-    	if msg.has_key('orderFillTransaction'):
-    		return True
-    	else:
-    		return False
+		return self.IsOrderSuccessfullyCreated(msg["orderCreateTransaction"]["id"])
 
-    def _getMarketOrderBody(self, order_id, instrument, datetime, units, stop_loss):
-    	order_type = "MARKET"
-    	order_time_in_force = "GTC"
-    	order_position_fill = "DEFAULT"
+	def _getMarketOrderBody(self, order_id, instrument, datetime, units, stop_loss):
+		order_type = "MARKET"
+		order_time_in_force = "GTC"
+		order_position_fill = "DEFAULT"
 
-    	client_extension = {}
-    	client_extension['id'] = order_id
-    	client_extension['tag'] = instrument + "_" + str(datetime)
-    	client_extension['comment'] = instrument + "_" + str(datetime)
+		client_extension = {}
+		client_extension['id'] = order_id
+		client_extension['tag'] = instrument + "_" + str(datetime)
+		client_extension['comment'] = instrument + "_" + str(datetime)
 
-    	stop_loss_details = {}
-    	stop_loss_details['price'] = str(stop_loss);
-    	stop_loss_details['clientExtension'] = client_extension
+		stop_loss_details = {}
+		stop_loss_details['price'] = str(stop_loss);
+		stop_loss_details['clientExtension'] = client_extension
 
-    	return_json = {}
-    	return_json['type'] = order_type
-    	return_json['instrument'] = instrument
-    	return_json['units'] = str(units);
-    	return_json['clientExtensions'] = client_extension
-    	return_json['stopLossOnFill'] = stop_loss_details
+		return_json = {}
+		return_json['type'] = order_type
+		return_json['instrument'] = instrument
+		return_json['units'] = str(units);
+		return_json['clientExtensions'] = client_extension
+		return_json['stopLossOnFill'] = stop_loss_details
 
-    	return return_json
+		return return_json
 
-    def MakeLimitOrder(self, order_id, instrument, price, datetime, units, stop_loss):
-    	order = self._getLimitOrderBody(order_id, instrument, price, datetime, units, stop_loss)
+	def IsOrderSuccessfullyCreated(self, order_id):
+		url = "https://" + settings.API_DOMAIN + "/v3/accounts/" + settings.ACCOUNT_ID + "/orders/" + order_id
+		headers = {'Authorization': 'Bearer ' + settings.ACCESS_TOKEN}
 
-    	url = "https://" + settings.API_DOMAIN + "/v3/accounts/" + settings.ACCOUNT_ID + "/orders"
-    	headers = { 'Authorization' : 'Bearer ' + settings.ACCESS_TOKEN }
+		s = requests.Session()
+		req = requests.Request('GET', url, headers=headers)
 
-    	s = requests.Session()
-    	req = requests.Request('POST', url, headers = headers, json={ "order": order })
+		pre = req.prepare()
+		response = s.send(pre, stream=False, verify=False)
 
-    	pre = req.prepare()
-    	response = s.send(pre, stream = False, verify = False)
+		if response.status_code != 200:
+			raise Exception('api.OrdersData.IsOrderSuccessfullyCreated: ' + ' Response: ' + response.text)
 
-    	if response.status_code != 201:
-    		raise Exception('api.OrdersData.MakeMarketOrder: Instrument: ' + instrument + ' units: ' + str(units) + ' stop_loss: ' + str(stop_loss) + ' Response: ' + response.text)
+		msg = json.loads(response.text)
 
-    	msg = json.loads(response.text)
+		return msg["order"]["state"] != "CANCELLED"
 
-    	if msg.has_key('orderFillTransaction'):
-    		return True
-    	else:
-    		return False
+	def MakeLimitOrder(self, order_id, instrument, price, datetime, units, stop_loss):
+		order = self._getLimitOrderBody(order_id, instrument, price, datetime, units, stop_loss)
 
-    def _getLimitOrderBody(self, order_id, instrument, price, datetime, units, stop_loss):
-    	order_type = "MARKET_IF_TOUCHED";
-    	order_time_in_force = "GTD";
-    	order_position_fill = "DEFAULT";
-        time_to_cancel = datetime.now() + timedelta(hours=1);
-        time_to_cancel = str(time_to_cancel.isoformat('T')) + "Z";
+		url = "https://" + settings.API_DOMAIN + "/v3/accounts/" + settings.ACCOUNT_ID + "/orders"
+		headers = { 'Authorization' : 'Bearer ' + settings.ACCESS_TOKEN }
 
-    	client_extension = {};
-    	client_extension['id'] = order_id;
-    	client_extension['tag'] = instrument + "_" + str(datetime);
-    	client_extension['comment'] = instrument + "_" + str(datetime);
+		s = requests.Session()
+		req = requests.Request('POST', url, headers = headers, json={ "order": order })
 
-    	stop_loss_details = {};
-    	stop_loss_details['price'] = str(stop_loss);
-    	stop_loss_details['clientExtension'] = client_extension;
+		pre = req.prepare()
+		response = s.send(pre, stream = False, verify = False)
 
-    	return_json = {};
-    	return_json['type'] = order_type;
-    	return_json['instrument'] = instrument;
-        return_json['timeInForce'] = order_time_in_force;
-        return_json['gtdTime'] = time_to_cancel;
-    	return_json['units'] = str(units);
-        return_json['price'] = str(price);
-    	return_json['clientExtensions'] = client_extension;
-    	return_json['stopLossOnFill'] = stop_loss_details;
+		if response.status_code != 201:
+			raise Exception('api.OrdersData.MakeMarketOrder: Instrument: ' + instrument + ' units: ' + str(units) + ' stop_loss: ' + str(stop_loss) + ' Response: ' + response.text)
 
-    	return return_json;
+		msg = json.loads(response.text)
 
-    def ModifyStopLoss(self, trade_id, stop_loss_id, new_stop_loss):
-    	url = "https://" + settings.API_DOMAIN + "/v3/accounts/" + settings.ACCOUNT_ID + "/orders/" + trade_id;
-    	headers = { 'Authorization' : 'Bearer ' + settings.ACCESS_TOKEN }
+		return self.IsOrderSuccessfullyCreated(msg.orderCreateTransaction)
 
-    	s = requests.Session()
-    	req = requests.Request('PUT', url, headers = headers, json={'order': self._getStopLossOrderBody(stop_loss_id, str(new_stop_loss))});
-    	pre = req.prepare()
-    	response = s.send(pre, stream = False, verify = False)
-    	msg = json.loads(response.text);
+	def _getLimitOrderBody(self, order_id, instrument, price, datetime, units, stop_loss):
+		order_type = "MARKET_IF_TOUCHED";
+		order_time_in_force = "GTD";
+		order_position_fill = "DEFAULT";
+		time_to_cancel = datetime.now() + timedelta(hours=1);
+		time_to_cancel = str(time_to_cancel.isoformat('T')) + "Z";
 
-    	if response.status_code != 201:
-    		raise Exception('api.OrdersData.ModifyStopLoss: ' + response.text)
+		client_extension = {};
+		client_extension['id'] = order_id;
+		client_extension['tag'] = instrument + "_" + str(datetime);
+		client_extension['comment'] = instrument + "_" + str(datetime);
 
-    	return msg;
+		stop_loss_details = {};
+		stop_loss_details['price'] = str(stop_loss);
+		stop_loss_details['clientExtension'] = client_extension;
 
-    def _getStopLossOrderBody(self, trade_id, new_stop_loss):
-    	order_type = "STOP_LOSS"
-    	order_time_in_force = "GTC"
-    	trade_id = trade_id;
-    	new_price = new_stop_loss;
+		return_json = {};
+		return_json['type'] = order_type;
+		return_json['instrument'] = instrument;
+		return_json['timeInForce'] = order_time_in_force;
+		return_json['gtdTime'] = time_to_cancel;
+		return_json['units'] = str(units);
+		return_json['price'] = str(price);
+		return_json['clientExtensions'] = client_extension;
+		return_json['stopLossOnFill'] = stop_loss_details;
 
-    	return_json = {};
-    	return_json['type'] = order_type;
-    	return_json['tradeID'] = trade_id;
-    	return_json['price'] = new_price;
-    	return_json['timeInForce'] = order_time_in_force;
+		return return_json;
 
-    	return return_json;
+	def ModifyStopLoss(self, trade_id, stop_loss_id, new_stop_loss):
+		url = "https://" + settings.API_DOMAIN + "/v3/accounts/" + settings.ACCOUNT_ID + "/orders/" + trade_id;
+		headers = { 'Authorization' : 'Bearer ' + settings.ACCESS_TOKEN }
 
-    def CloseTradePartially(self, trade, percent):
+		s = requests.Session()
+		req = requests.Request('PUT', url, headers = headers, json={'order': self._getStopLossOrderBody(stop_loss_id, str(new_stop_loss))});
+		pre = req.prepare()
+		response = s.send(pre, stream = False, verify = False)
+		msg = json.loads(response.text);
+
+		if response.status_code != 201:
+			raise Exception('api.OrdersData.ModifyStopLoss: ' + response.text)
+
+		return msg;
+
+	def _getStopLossOrderBody(self, trade_id, new_stop_loss):
+		order_type = "STOP_LOSS"
+		order_time_in_force = "GTC"
+		trade_id = trade_id;
+		new_price = new_stop_loss;
+
+		return_json = {};
+		return_json['type'] = order_type;
+		return_json['tradeID'] = trade_id;
+		return_json['price'] = new_price;
+		return_json['timeInForce'] = order_time_in_force;
+
+		return return_json;
+
+	def CloseTradePartially(self, trade, percent):
 		units_to_close = int(float(trade['currentUnits']) * percent);
 		if units_to_close < 0:
 			units_to_close = units_to_close * -1;
