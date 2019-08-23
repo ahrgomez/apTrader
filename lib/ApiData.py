@@ -245,10 +245,23 @@ class ApiData(object):
 
 		msg = json.loads(response.text);
 
-		if msg.has_key("marginUsed"):
-			return int(msg['marginUsed']);
-		else:
-			return 0;
+		return float(msg['account']['marginUsed'])
+
+	def GetBalance(self):
+		url = "https://" + settings.API_DOMAIN + "/v3/accounts/" + settings.ACCOUNT_ID
+		headers = {'Authorization': 'Bearer ' + settings.ACCESS_TOKEN}
+
+		s = requests.Session()
+		req = requests.Request('GET', url, headers=headers)
+		pre = req.prepare()
+		response = s.send(pre, stream=False, verify=False)
+
+		if response.status_code != 200:
+			raise Exception('GetBalance: ' + response.text)
+
+		msg = json.loads(response.text)
+
+		return float(msg['account']['balance'])
 
 	def ExistsTradeOfInstrument(self, instrument):
 		url = "https://" + settings.API_DOMAIN + "/v3/accounts/" + settings.ACCOUNT_ID + "/openTrades"
