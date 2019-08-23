@@ -42,7 +42,7 @@ class ApiData(object):
 
 			return pd.DataFrame(data)
 
-	def GetUnitsForPrice(self, price, instrument, precision, rate = 1):
+	def GetUnitsForPrice(self, price, instrument, precision, granularity, rate = 1):
 		local_currency = "EUR";
 		base_currency = instrument.split('_')[0];
 
@@ -50,7 +50,7 @@ class ApiData(object):
 			last_close_price = 1;
 		else:
 			currency_to_check = base_currency + "_" + local_currency;
-			last_close_price = self.GetConvertPriceCurrencyWithOanda(local_currency, base_currency)
+			last_close_price = self.GetConvertPriceCurrencyWithOanda(local_currency, base_currency, granularity)
 
 		units =  float(price) * rate / float(last_close_price);
 		units = self.GetPriceFormatted(units, int(precision));
@@ -97,8 +97,8 @@ class ApiData(object):
 		msg = json.loads(response.text)
 		return msg
 
-	def GetActualPrice(self, instrument):
-		data = self.GetData(instrument, "M5", 10)
+	def GetActualPrice(self, instrument, granularity):
+		data = self.GetData(instrument, granularity, 10)
 		if data is None:
 			return None;
 		return float(data[-1:]['close'])
@@ -129,7 +129,7 @@ class ApiData(object):
 		else:
 			return [];
 
-	def GetCurrencyChange(self, instrument):
+	def GetCurrencyChange(self, instrument, granularity):
 		local_currency = "EUR";
 		base_currency = instrument.split('_')[1];
 
@@ -137,7 +137,7 @@ class ApiData(object):
 			last_close_price = 1;
 		else:
 			currency_to_check = base_currency + "_" + local_currency;
-			last_close_price = self.GetConvertPriceCurrencyWithOanda(local_currency, base_currency)
+			last_close_price = self.GetConvertPriceCurrencyWithOanda(local_currency, base_currency, granularity)
 
 		return last_close_price;
 
@@ -172,16 +172,21 @@ class ApiData(object):
 		msg = json.loads(response.text);
 		return msg['rates'][currency_B];
 
-	def GetConvertPriceCurrencyWithOanda(self, currency_A, currency_B):
-		to_check = currency_A + "_" + currency_B;
-		actual_price = self.GetActualPrice(to_check);
+	def GetConvertPriceCurrencyWithOanda(self, currency_A, currency_B, granularity):
+		try:
+			to_check = currency_A + "_" + currency_B;
+			actual_price = self.GetActualPrice(to_check, granularity);
+		except:
+			to_check = currency_B + "_" + currency_A;
+			actual_price = self.GetActualPrice(to_check, granularity);
+
 		return actual_price;
 
-	def GetPipValue(self, instrument, units, pip_location):
+	def GetPipValue(self, instrument, units, pip_location, granularity):
 		if units < 0:
 			units = units * -1;
 
-		currency_change_price = self.GetCurrencyChange(instrument);
+		currency_change_price = self.GetCurrencyChange(instrument, granularity);
 
 		if currency_change_price == 0:
 			return 0;

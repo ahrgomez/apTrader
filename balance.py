@@ -22,7 +22,7 @@ def main():
 		datetime_object = parser.parse(trade['closeTime']);
 
 
-		d=datetime.strptime('06:00','%H:%M')
+		d=datetime.strptime('10:00','%H:%M')
 
 		if datetime_object.date() < datetime.today().date():
 			continue;

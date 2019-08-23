@@ -20,7 +20,8 @@ instrumentsManager = InstrumentsManager({})
 errorsManagement = Client('https://7932a7da676c4962895957059416bd7d:da9a1669ee724bb2b61cf7b47b430ccc@sentry.io/154029')
 
 #Strategies
-ichimoku = Ichimoku.Ichimoku()
+granularity = "M5"
+ichimoku = Ichimoku.Ichimoku(granularity)
 
 DEBUG = True;
 
@@ -56,6 +57,9 @@ def main():
 
 				instrument = instrument_part_A + '_' + instrument_part_B;
 
+				if instrument == "EU50_EUR" or instrument == "DE30_EUR" or instrument == "FR40_EUR" or instrument == "NL25_EUR" or instrument == "XAU_EUR":
+					continue
+
 				result = ProcessPrice(instrument, price);
 				if DEBUG:
 					if result == 1:
@@ -73,8 +77,8 @@ def ProcessPrice(instrument, price):
 	if check_result is None:
 		return
 
-	if apiData.GetMarginUsed() >= 400:
-		return
+	#if apiData.GetMarginUsed() >= 400:
+	#	return
 
 	if PutOrder(check_result, instrument, entry_price, price, stop_loss_price):
 		print time + ": " + str(entry_price) + "/" + str(stop_loss_price)
@@ -85,9 +89,9 @@ def ProcessPrice(instrument, price):
 def PutOrder(order_type, instrument, entry_price, price, stop_loss):
 	if not apiData.ExistsTradeOfInstrument(instrument) and not apiData.ExistsOrderOfInstrument(instrument):
 		date = datetime.now()
-		units = apiData.GetUnitsForPrice(50, instrument, instrumentsManager.instruments[instrument]['precision'], instrumentsManager.instruments[instrument]['rate']);
+		units = apiData.GetUnitsForPrice(50, instrument, instrumentsManager.instruments[instrument]['precision'], granularity, instrumentsManager.instruments[instrument]['rate']);
 
-		if units is None:
+		if units is None or units == 0:
 			print "Can't have units to " + instrument
 			return None;
 

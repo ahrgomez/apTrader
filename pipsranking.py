@@ -12,7 +12,7 @@ def main():
 
     for inst in instrumentsManager.instruments:
         try:
-            pip_value = apiData.GetPipValue(inst, 50, instrumentsManager.instruments[inst]['pipLocation']);
+            pip_value = apiData.GetPipValue(inst, 50, instrumentsManager.instruments[inst]['pipLocation'], "M5");
             pips[inst] = pip_value;
         except:
             pass;

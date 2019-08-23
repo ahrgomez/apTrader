@@ -12,7 +12,10 @@ errorsManagement = Client('https://7aff590e4b774a43ba2255f9e1dcbeff:e88ee295381e
 
 apiData = ApiData()
 instrumentsManager = InstrumentsManager({})
-ichimoku = Ichimoku()
+
+granularity = "M5"
+pip_target = 4
+ichimoku = Ichimoku(granularity)
 
 DEBUG = True;
 
@@ -80,7 +83,7 @@ def CheckToCloseTrade(trade, instrument, trade_type, partially_closed):
 
 def CheckTraillingStop(trade, trade_type):
     instrument = trade['instrument']
-    actual_price = float(apiData.GetActualPrice(instrument));
+    actual_price = float(apiData.GetActualPrice(instrument, granularity));
     stop_loss_price = float(trade['stopLossOrder']['price']);
     begining_price = float(trade['price']);
 
@@ -88,7 +91,7 @@ def CheckTraillingStop(trade, trade_type):
         if begining_price > stop_loss_price:
             return;
         else:
-            last_candle = apiData.GetLastClosedCandle(instrument, "H1")
+            last_candle = apiData.GetLastClosedCandle(instrument, granularity)[0]
             if stop_loss_price >= last_candle['low']:
                 return;
             else:
@@ -97,7 +100,7 @@ def CheckTraillingStop(trade, trade_type):
         if begining_price < stop_loss_price:
             return;
         else:
-            last_candle = apiData.GetLastClosedCandle(instrument, "H1")
+            last_candle = apiData.GetLastClosedCandle(instrument, granularity)[0]
             if stop_loss_price <= last_candle['high']:
                 return;
             else:
@@ -109,14 +112,14 @@ def CheckTraillingStop(trade, trade_type):
     print "Upload stop loss from " + instrument + " to " + str(new_stop_loss);
 
 def CheckTotalClose(instrument, trade_type):
-    last_candle = apiData.GetLastClosedCandle(instrument, "H1");
+    last_candle = apiData.GetLastClosedCandle(instrument, granularity)[0]
     if last_candle is None:
         return False;
     else:
-        return ichimoku.CheckTotalClose(trade_type, instrument, last_candle);
+        return ichimoku.CheckTotalClose(trade_type, instrument, last_candle)
 
 def CheckPartialClose(trade, instrument, trade_type):
-    return ichimoku.CheckPartialClose(trade_type, instrument, float(trade['initialUnits']), instrumentsManager.instruments[instrument]['pipLocation'], float(trade['unrealizedPL']));
+    return ichimoku.CheckPartialClose(trade_type, instrument, granularity, float(trade['initialUnits']), instrumentsManager.instruments[instrument]['pipLocation'], float(trade['unrealizedPL']), pip_target);
 
 def IsForbiddenTime():
 	weekday = datetime.today().weekday();

@@ -12,22 +12,22 @@ class Ichimoku(object):
 
     apiData = {}
     ichimoku_dataframe = pd.DataFrame()
-    granularity = "H1"
+    granularity = "M5"
 
-    def __init__(self):
+    def __init__(self, granularity):
         self.apiData = ApiData()
+        self.granularity = granularity
 
     def Verify(self, instrument, candles = None):
         self.ichimoku_dataframe = pd.DataFrame()
         candles = self._calculateIchimokuLines(instrument, candles)
 
         last_candle, last_candle_index = self.apiData.GetLastClosedCandle(instrument, self.granularity, candles);
-        last_tenkan = self.ichimoku_dataframe['TENKAN'].iloc[len(self.ichimoku_dataframe['TENKAN'].index) - 1]
 
         previous_two_candles = candles.tail(2)
         previous_two_candles = previous_two_candles.drop(previous_two_candles.index[len(previous_two_candles)-1])
 
-        entry_type, entry_price = self._strategy(previous_two_candles, last_candle, last_tenkan)
+        entry_type, entry_price = self._strategy(previous_two_candles, last_candle)
 
         if entry_type is not None:
 
@@ -41,20 +41,44 @@ class Ichimoku(object):
 
         return None, -1, -1, last_candle['time']
 
-    def _strategy(self, previous_two_candles, last_candle, last_tenkan):
-        last_senkou_a = self.ichimoku_dataframe['SENKOU_A'].iloc[len(self.ichimoku_dataframe['SENKOU_A'].index) - 1]
-        last_senkou_b = self.ichimoku_dataframe['SENKOU_B'].iloc[len(self.ichimoku_dataframe['SENKOU_B'].index) - 1]
+    def _strategy(self, previous_two_candles, last_candle):
+        previous_candle = previous_two_candles.iloc[0]
 
-        if self._getCandlePositionFromKumo(last_candle) == 1 and self._isPriceTopOfKumo(last_tenkan) and self._candleIsCrossing(last_candle, last_tenkan) == 1 and self._isCandleInAValidPosition(last_candle, 1):
-            if previous_two_candles.iloc[0]['high'] < last_tenkan and previous_two_candles.iloc[0]['low'] < last_tenkan:# and  previous_two_candles.iloc[1]['high'] < last_tenkan and previous_two_candles.iloc[1]['low'] < last_tenkan:
-                entry_price = last_candle['close']# + ((last_candle['close'] - last_candle['open']) / 2)
+        last_tenkan = self.ichimoku_dataframe['TENKAN'].iloc[len(self.ichimoku_dataframe['TENKAN'].index) - 1]
+        last_kinjun = self.ichimoku_dataframe['KIJUN'].iloc[len(self.ichimoku_dataframe['KIJUN'].index) - 1]
+
+        if self._isPriceTopOfKumo(last_tenkan) and self._isPriceTopOfKumo(last_kinjun) and last_tenkan > last_kinjun and self._isCandleInAValidPosition(last_candle, 1):
+            last_invalid_position = self._getLastInvalidLinesPosition(1)
+            if last_invalid_position > -6:
+                entry_price = last_candle['close']  # + ((last_candle['close'] - last_candle['open']) / 2)
                 return 1, entry_price
-        elif self._getCandlePositionFromKumo(last_candle) == -1 and self._isPriceBottomOfKumo(last_tenkan) and self._candleIsCrossing(last_candle, last_tenkan) == -1 and self._isCandleInAValidPosition(last_candle, -1):
-            if previous_two_candles.iloc[0]['high'] > last_tenkan and previous_two_candles.iloc[0]['low'] > last_tenkan:# and  previous_two_candles.iloc[1]['high'] > last_tenkan and previous_two_candles.iloc[1]['low'] > last_tenkan:
-                entry_price = last_candle['close']# + ((last_candle['close'] - last_candle['open']) / 2)
+        elif self._isPriceBottomOfKumo(last_tenkan) and self._isPriceBottomOfKumo(last_kinjun) and last_kinjun > last_tenkan and self._isCandleInAValidPosition(last_candle, -1):
+            last_invalid_position = self._getLastInvalidLinesPosition(-1)
+            if last_invalid_position > -6:
+                entry_price = last_candle['close']  # + ((last_candle['close'] - last_candle['open']) / 2)
                 return -1, entry_price
 
         return None, -1
+
+    def _getLastInvalidLinesPosition(self, type):
+        lines_position = -1
+
+        while True:
+            last_tenkan = self.ichimoku_dataframe['TENKAN'].iloc[
+                len(self.ichimoku_dataframe['TENKAN'].index) + lines_position]
+            last_kinjun = self.ichimoku_dataframe['KIJUN'].iloc[
+                len(self.ichimoku_dataframe['KIJUN'].index) + lines_position]
+
+            if type == 1:
+                if not self._isPriceTopOfKumo(last_tenkan) or not self._isPriceTopOfKumo(last_kinjun):
+                    return lines_position
+                else:
+                    lines_position = lines_position - 1
+            elif type == -1:
+                if not self._isPriceBottomOfKumo(last_tenkan) or not self._isPriceBottomOfKumo(last_kinjun):
+                    return lines_position
+                else:
+                    lines_position = lines_position - 1
 
     def _calculateIchimokuLines(self, instrument, data = None, actual_price = None):
         if data is None:
@@ -69,11 +93,11 @@ class Ichimoku(object):
         			'close': actual_price}, ignore_index=True)
 
 
-        self.ichimoku_dataframe['TENKAN'] = self._calculateMidPoint(data['high'], data['low'], 7);
-        self.ichimoku_dataframe['KIJUN'] = self._calculateMidPoint(data['high'], data['low'], 22);
-        self.ichimoku_dataframe['SENKOU_A'] = ((self.ichimoku_dataframe['TENKAN'] + self.ichimoku_dataframe['KIJUN']) / 2).shift(22);
-        self.ichimoku_dataframe['SENKOU_B'] = self._calculateMidPoint(data['high'], data['low'], 44).shift(22);
-        self.ichimoku_dataframe['CHIKOU'] = data['close'].shift(-22);
+        self.ichimoku_dataframe['TENKAN'] = self._calculateMidPoint(data['high'], data['low'], 9);
+        self.ichimoku_dataframe['KIJUN'] = self._calculateMidPoint(data['high'], data['low'], 26);
+        self.ichimoku_dataframe['SENKOU_A'] = ((self.ichimoku_dataframe['TENKAN'] + self.ichimoku_dataframe['KIJUN']) / 2).shift(26);
+        self.ichimoku_dataframe['SENKOU_B'] = self._calculateMidPoint(data['high'], data['low'], 52).shift(26);
+        self.ichimoku_dataframe['CHIKOU'] = data['close'].shift(-26);
         self.ichimoku_dataframe['PRICE'] = data['close'];
 
         return data
@@ -238,7 +262,7 @@ class Ichimoku(object):
         dataS5 = self.apiData.GetData(instrument, self.granularity, 500);
         dataS5 = dataS5.drop(dataS5.index[len(dataS5)-1]);
 
-        actual_price = self.apiData.GetActualPrice(instrument);
+        actual_price = self.apiData.GetActualPrice(instrument, self.granularity);
 
         dataS5 = dataS5.append({ 'time': datetime.now(),
     			'high': actual_price,
@@ -284,22 +308,22 @@ class Ichimoku(object):
         midPoint = (maxHigh + maxLow) / 2;
         return midPoint;
 
-    def CheckPartialClose(self, trade_type, instrument, initial_units, pip_location, actual_value):
-        pip_value = self.apiData.GetPipValue(instrument, initial_units, pip_location);
+    def CheckPartialClose(self, trade_type, instrument, granularity, initial_units, pip_location, actual_value, target_pip_value):
+        pip_value = self.apiData.GetPipValue(instrument, initial_units, pip_location, granularity);
 
         if pip_value == 0:
             return False;
 
         actual_pip_value = actual_value / pip_value;
 
-        if actual_pip_value >= 15:
+        if actual_pip_value >= target_pip_value:
             return True;
 
         return False;
 
     def CheckTotalClose(self, trade_type, instrument, last_candle):
-        actual_price = self.apiData.GetActualPrice(instrument);
-        self._calculateIchimokuLines(instrument, actual_price);
+        actual_price = self.apiData.GetActualPrice(instrument, self.granularity);
+        self._calculateIchimokuLines(instrument, None, actual_price);
 
         if trade_type == 1:
             if self.ichimoku_dataframe['TENKAN'].iloc[len(self.ichimoku_dataframe['TENKAN'].index) - 2] > float(last_candle['open']):
