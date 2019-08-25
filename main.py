@@ -135,7 +135,10 @@ def IsForbiddenTime():
 	if weekday == 4 and today.hour > 21:
 		return True;
 
-	if weekday == 5 or weekday == 6:
+	if weekday == 5:
+		return True;
+
+	if weekday == 6 and today.hour < 23:
 		return True;
 
 	#if today.hour < 6 or (today.hour >= 12 and today.hour <= 13) or today.hour > 20:
