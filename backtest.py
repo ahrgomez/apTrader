@@ -31,7 +31,7 @@ DEBUG = True;
 def main():
 
 	try:
-		instrument = 'EUR_USD'
+		instrument = 'EUR_ZAR'
 		candles = apiData.GetData(instrument, granularity, 5000)
 
 		start = 10
@@ -57,11 +57,11 @@ def main():
 					print instrument + ": " + "SHORT"
 
 
-			if trades.has_key(instrument):
-				CheckToCloseTrade(trades[instrument], instrument, actual_candles_array[:-1])
+			#if trades.has_key(instrument):
+				#CheckToCloseTrade(trades[instrument], instrument, actual_candles_array[:-1])
 	except KeyboardInterrupt:
 		return
-	except:
+	except Exception, e:
 		errorsManagement.captureException();
 		pass;
 
@@ -69,6 +69,8 @@ def ProcessPrice(instrument, candles):
 	check_result, entry_price, stop_loss_price, time = ichimoku.Verify(instrument, candles)
 	if check_result is None:
 		return
+	print time + ": " + str(entry_price) + "/" + str(stop_loss_price)
+	return check_result
 
 	if PutOrder(check_result, instrument, time, entry_price, stop_loss_price):
 		print time + ": " + str(entry_price) + "/" + str(stop_loss_price)
@@ -81,7 +83,7 @@ def ProcessPrice(instrument, candles):
 
 def PutOrder(order_type, instrument, time, entry_price, price, stop_loss):
 
-	if not trades.has_key(instrument):
+	if True:
 
 		units = apiData.GetUnitsForPrice(50, instrument, instrumentsManager.instruments[instrument]['precision'],
 										 granularity, instrumentsManager.instruments[instrument]['rate']);

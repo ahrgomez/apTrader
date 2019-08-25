@@ -4,6 +4,7 @@ from datetime import datetime
 from numpy import *
 import numpy as np
 import pandas as pd
+from lib import Rsi
 
 from math import atan2, degrees, pi
 #import matplotlib.pyplot as plt
@@ -27,7 +28,10 @@ class Ichimoku(object):
         previous_two_candles = candles.tail(2)
         previous_two_candles = previous_two_candles.drop(previous_two_candles.index[len(previous_two_candles)-1])
 
-        entry_type, entry_price = self._strategy(previous_two_candles, last_candle)
+        rsi = Rsi.Rsi(14)
+        rsi_value = rsi.CalculateWithTaLib(candles['close'])[0] + 0.30
+
+        entry_type, entry_price = self._strategy(previous_two_candles, last_candle, rsi_value)
 
         if entry_type is not None:
 
@@ -41,20 +45,20 @@ class Ichimoku(object):
 
         return None, -1, -1, last_candle['time']
 
-    def _strategy(self, previous_two_candles, last_candle):
+    def _strategy(self, previous_two_candles, last_candle, rsi_value):
         previous_candle = previous_two_candles.iloc[0]
 
         last_tenkan = self.ichimoku_dataframe['TENKAN'].iloc[len(self.ichimoku_dataframe['TENKAN'].index) - 1]
         last_kinjun = self.ichimoku_dataframe['KIJUN'].iloc[len(self.ichimoku_dataframe['KIJUN'].index) - 1]
 
         if self._isPriceTopOfKumo(last_tenkan) and self._isPriceTopOfKumo(last_kinjun) and last_tenkan > last_kinjun and self._isCandleInAValidPosition(last_candle, 1):
-            last_invalid_position = self._getLastInvalidLinesPosition(1)
-            if last_invalid_position > -6:
+            #last_invalid_position = self._getLastInvalidLinesPosition(1)
+            if rsi_value > 70:
                 entry_price = last_candle['close']  # + ((last_candle['close'] - last_candle['open']) / 2)
                 return 1, entry_price
         elif self._isPriceBottomOfKumo(last_tenkan) and self._isPriceBottomOfKumo(last_kinjun) and last_kinjun > last_tenkan and self._isCandleInAValidPosition(last_candle, -1):
-            last_invalid_position = self._getLastInvalidLinesPosition(-1)
-            if last_invalid_position > -6:
+            #last_invalid_position = self._getLastInvalidLinesPosition(-1)
+            if rsi_value < 30:
                 entry_price = last_candle['close']  # + ((last_candle['close'] - last_candle['open']) / 2)
                 return -1, entry_price
 
