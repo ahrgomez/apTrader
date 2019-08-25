@@ -4,4 +4,3 @@ numpy==1.11.3
 requests==2.12.4
 beautifulsoup4==4.5.1
 raven==6.0.0
-TA-Lib==0.4.17
