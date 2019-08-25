@@ -107,6 +107,7 @@ class Ichimoku(object):
         return data
 
     def _getCandlePositionFromKumo(self, candle):
+        
         senkou_a = self.ichimoku_dataframe['SENKOU_A'].iloc[len(self.ichimoku_dataframe['SENKOU_A'].index) - 1]
         senkou_b = self.ichimoku_dataframe['SENKOU_B'].iloc[len(self.ichimoku_dataframe['SENKOU_B'].index) - 1]
 
