@@ -132,6 +132,8 @@ def IsForbiddenTime():
 	weekday = datetime.today().weekday();
 	today = datetime.today();
 
+	print "wd: " + weekday + " h: " + today.hour
+	
 	if weekday == 4 and today.hour > 21:
 		return True;
 
