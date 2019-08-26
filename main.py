@@ -111,9 +111,6 @@ def PutOrder(order_type, instrument, entry_price, price, stop_loss):
 			could_put_order = True
 		else:
 			could_put_order = False
-
-        if partially_closed:
-            print "A GANADORA: " + instrument
 	else:
 		could_put_order = True
 
