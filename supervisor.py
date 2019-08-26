@@ -98,7 +98,7 @@ def CheckTraillingStop(trade, trade_type):
         if begining_price > stop_loss_price:
             return;
         else:
-            last_candle = apiData.GetClosedCandleByIndex(instrument, granularity, -2)
+            last_candle = apiData.GetClosedCandleByIndex(instrument, granularity, -3)
             if stop_loss_price >= last_candle['low']:
                 return;
             else:
@@ -107,7 +107,7 @@ def CheckTraillingStop(trade, trade_type):
         if begining_price < stop_loss_price:
             return;
         else:
-            last_candle = apiData.GetClosedCandleByIndex(instrument, granularity, -2)
+            last_candle = apiData.GetClosedCandleByIndex(instrument, granularity, -3)
             if stop_loss_price <= last_candle['high']:
                 return;
             else:
