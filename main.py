@@ -67,7 +67,8 @@ def main():
                         print instrument + ": " + "SHORT"
         except KeyboardInterrupt:
             break;
-        except:
+        except Exception, e:
+            print repr(e)
             errorsManagement.captureException();
             pass;
 
