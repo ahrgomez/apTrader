@@ -98,7 +98,7 @@ def CheckTraillingStop(trade, trade_type):
         if begining_price > stop_loss_price:
             return;
         else:
-            last_candle = apiData.GetLastClosedCandle(instrument, granularity)[0]
+            last_candle = apiData.GetClosedCandleByIndex(instrument, granularity, -2)[0]
             if stop_loss_price >= last_candle['low']:
                 return;
             else:
@@ -107,16 +107,16 @@ def CheckTraillingStop(trade, trade_type):
         if begining_price < stop_loss_price:
             return;
         else:
-            last_candle = apiData.GetLastClosedCandle(instrument, granularity)[0]
+            last_candle = apiData.GetClosedCandleByIndex(instrument, granularity, -2)[0]
             if stop_loss_price <= last_candle['high']:
                 return;
             else:
                 new_stop_loss = last_candle['high'];
 
-    new_stop_loss = apiData.GetPriceFormatted(new_stop_loss, instrumentsManager.instruments[instrument]['pricePrecision']);
-
-    OrdersData().ModifyStopLoss(trade['stopLossOrder']['id'], trade['id'], str(new_stop_loss));
-    print "Upload stop loss from " + instrument + " to " + str(new_stop_loss);
+    if (trade_type == 1 and stop_loss_price < new_stop_loss) or (trade_type == -1 and stop_loss_price > new_stop_loss):
+        new_stop_loss = apiData.GetPriceFormatted(new_stop_loss, instrumentsManager.instruments[instrument]['pricePrecision']);
+        OrdersData().ModifyStopLoss(trade['stopLossOrder']['id'], trade['id'], str(new_stop_loss));
+        print "Upload stop loss from " + instrument + " to " + str(new_stop_loss);
 
 def CheckTotalClose(instrument, trade_type):
     last_candle = apiData.GetLastClosedCandle(instrument, granularity)[0]
