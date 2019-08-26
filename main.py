@@ -87,7 +87,37 @@ def ProcessPrice(instrument, price):
 		return None;
 
 def PutOrder(order_type, instrument, entry_price, price, stop_loss):
-	if not apiData.ExistsTradeOfInstrument(instrument) and not apiData.ExistsOrderOfInstrument(instrument):
+	could_put_order = False
+
+	if apiData.ExistsTradeOfInstrument(instrument) or apiData.ExistsOrderOfInstrument(instrument):
+		trades = apiData.GetTradesOpened()
+		instrument_trades = []
+
+		for trade in trades:
+			if trade['instrument'] == instrument:
+				instrument_trades.append(trade)
+
+		sorted(instrument_trades, key=lambda x: datetime.strptime(x['openTime'].split('.')[0], '%Y-%m-%dT%H:%M:%S'))
+
+		last_trade = instrument_trades[0]
+
+		partially_closed = False
+		if float(last_trade['initialUnits']) < 0:
+			partially_closed = float(last_trade['initialUnits']) < float(last_trade['currentUnits'])
+		else:
+			partially_closed = float(last_trade['initialUnits']) > float(last_trade['currentUnits'])
+
+		if partially_closed:
+			could_put_order = True
+		else:
+			could_put_order = False
+
+        if partially_closed:
+            print "A GANADORA: " + instrument
+	else:
+		could_put_order = True
+
+	if could_put_order:
 		date = datetime.now()
 
 		balance = apiData.GetBalance()
