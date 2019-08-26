@@ -3,7 +3,6 @@
   <component name="ChangeListManager">
     <list default="true" id="db168b32-ed84-4635-b566-45f8e53b9da8" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/strategies/Ichimoku.py" afterPath="$PROJECT_DIR$/strategies/Ichimoku.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/supervisor.py" afterPath="$PROJECT_DIR$/supervisor.py" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -17,10 +16,10 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="supervisor.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="supervisor.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/supervisor.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="154">
+            <state relative-caret-position="-50">
               <caret line="76" column="49" lean-forward="true" selection-start-line="76" selection-start-column="49" selection-end-line="76" selection-end-column="49" />
               <folding />
             </state>
@@ -99,11 +98,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Ichimoku.py" pinned="false" current-in-tab="false">
+      <file leaf-file-name="Ichimoku.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/strategies/Ichimoku.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="241">
-              <caret line="335" column="45" lean-forward="false" selection-start-line="335" selection-start-column="45" selection-end-line="335" selection-end-column="45" />
+            <state relative-caret-position="142">
+              <caret line="264" column="36" lean-forward="false" selection-start-line="264" selection-start-column="13" selection-end-line="264" selection-end-column="36" />
               <folding>
                 <element signature="e#0#31#0" expanded="true" />
               </folding>
@@ -153,6 +152,7 @@
       <find>Rsi(</find>
       <find>last</find>
       <find>&quot;H1&quot;</find>
+      <find>_calculateIchimokuLines</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -169,8 +169,8 @@
         <option value="$PROJECT_DIR$/backtest.py" />
         <option value="$PROJECT_DIR$/requirements.txt" />
         <option value="$PROJECT_DIR$/main.py" />
-        <option value="$PROJECT_DIR$/strategies/Ichimoku.py" />
         <option value="$PROJECT_DIR$/supervisor.py" />
+        <option value="$PROJECT_DIR$/strategies/Ichimoku.py" />
       </list>
     </option>
   </component>
@@ -1001,21 +1001,21 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/strategies/Ichimoku.py">
+    <entry file="file://$PROJECT_DIR$/supervisor.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="241">
-          <caret line="335" column="45" lean-forward="false" selection-start-line="335" selection-start-column="45" selection-end-line="335" selection-end-column="45" />
-          <folding>
-            <element signature="e#0#31#0" expanded="true" />
-          </folding>
+        <state relative-caret-position="-50">
+          <caret line="76" column="49" lean-forward="true" selection-start-line="76" selection-start-column="49" selection-end-line="76" selection-end-column="49" />
+          <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/supervisor.py">
+    <entry file="file://$PROJECT_DIR$/strategies/Ichimoku.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="154">
-          <caret line="76" column="49" lean-forward="true" selection-start-line="76" selection-start-column="49" selection-end-line="76" selection-end-column="49" />
-          <folding />
+        <state relative-caret-position="142">
+          <caret line="264" column="36" lean-forward="false" selection-start-line="264" selection-start-column="13" selection-end-line="264" selection-end-column="36" />
+          <folding>
+            <element signature="e#0#31#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
