@@ -326,6 +326,19 @@ class Ichimoku(object):
 
         return False;
 
+    def CheckIsFalseSignal(self, instrument, trade_type):
+        self._calculateIchimokuLines(instrument, None, actual_price)
+
+        last_tenkan = self.ichimoku_dataframe['TENKAN'].iloc[len(self.ichimoku_dataframe['TENKAN'].index) - 1]
+        last_kinjun = self.ichimoku_dataframe['KIJUN'].iloc[len(self.ichimoku_dataframe['KIJUN'].index) - 1]
+
+        if trade_type == 1:
+            return last_kinjun >= last_tenkan
+        elif trade_type == -1:
+            return last_tenkan >= last_kinjun
+        else:
+            return False
+
     def CheckTotalClose(self, trade_type, instrument, last_candle):
         actual_price = self.apiData.GetActualPrice(instrument, self.granularity);
         self._calculateIchimokuLines(instrument, None, actual_price);
