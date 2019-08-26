@@ -103,10 +103,10 @@ def PutOrder(order_type, instrument, entry_price, price, stop_loss):
 
 		for trade in instrument_trades:
 			partially_closed = False
-			if float(last_trade['initialUnits']) < 0:
-				partially_closed = float(last_trade['initialUnits']) < float(last_trade['currentUnits'])
+			if float(trade['initialUnits']) < 0:
+				partially_closed = float(trade['initialUnits']) < float(trade['currentUnits'])
 			else:
-				partially_closed = float(last_trade['initialUnits']) > float(last_trade['currentUnits'])
+				partially_closed = float(trade['initialUnits']) > float(trade['currentUnits'])
 
 			if not partially_closed:
 				complete_trade_found = True
