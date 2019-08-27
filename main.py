@@ -115,21 +115,24 @@ def PutOrder(order_type, instrument, entry_price, price, stop_loss):
                 if not partial:
                     complete_trade_found = True
 
-        sorted(instrument_trades, key=lambda x: datetime.strptime(x['openTime'].split('.')[0], '%Y-%m-%dT%H:%M:%S'))
-
-        last_trade = instrument_trades[0]
-
-        partially_closed = False
-        if float(last_trade['initialUnits']) < 0:
-            partially_closed = float(last_trade['initialUnits']) < float(last_trade['currentUnits'])
-        else:
-            partially_closed = float(last_trade['initialUnits']) > float(last_trade['currentUnits'])
-
-        if partially_closed and not complete_trade_found:
-            print instrument + ": A GANADORA"
-            could_put_order = True
-        else:
+        if len(instrument_trades) == 0:
             could_put_order = False
+        else:
+            sorted(instrument_trades, key=lambda x: datetime.strptime(x['openTime'].split('.')[0], '%Y-%m-%dT%H:%M:%S'))
+
+            last_trade = instrument_trades[0]
+
+            partially_closed = False
+            if float(last_trade['initialUnits']) < 0:
+                partially_closed = float(last_trade['initialUnits']) < float(last_trade['currentUnits'])
+            else:
+                partially_closed = float(last_trade['initialUnits']) > float(last_trade['currentUnits'])
+
+            if partially_closed and not complete_trade_found:
+                print instrument + ": A GANADORA"
+                could_put_order = True
+            else:
+                could_put_order = False
     else:
         could_put_order = True
 
