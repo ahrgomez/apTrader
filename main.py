@@ -13,6 +13,8 @@ import json
 from datetime import datetime
 from time import sleep
 
+import sys, os
+
 apiData = ApiData()
 instrumentsManager = InstrumentsManager({})
 errorsManagement = Client('https://7932a7da676c4962895957059416bd7d:da9a1669ee724bb2b61cf7b47b430ccc@sentry.io/154029')
@@ -68,7 +70,10 @@ def main():
         except KeyboardInterrupt:
             break;
         except Exception, e:
-            print repr(e)
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+            print(exc_type, fname, exc_tb.tb_lineno)
+
             errorsManagement.captureException();
             pass;
 
