@@ -70,6 +70,7 @@ def main():
         except KeyboardInterrupt:
             break;
         except Exception, e:
+            print "error!"
             traceback.print_exc()
 
             errorsManagement.captureException();
