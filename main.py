@@ -95,9 +95,19 @@ def PutOrder(order_type, instrument, entry_price, price, stop_loss):
         trades = apiData.GetTradesOpened()
         instrument_trades = []
 
+        complete_trade_found = False
+
         for trade in trades:
             if trade['instrument'] == instrument:
                 instrument_trades.append(trade)
+                partial = False
+                if float(trade['initialUnits']) < 0:
+                    partial = float(trade['initialUnits']) < float(trade['currentUnits'])
+                else:
+                    partial = float(trade['initialUnits']) > float(trade['currentUnits'])
+
+                if not partial:
+                    complete_trade_found = True
 
         sorted(instrument_trades, key=lambda x: datetime.strptime(x['openTime'].split('.')[0], '%Y-%m-%dT%H:%M:%S'))
 
@@ -109,10 +119,8 @@ def PutOrder(order_type, instrument, entry_price, price, stop_loss):
         else:
             partially_closed = float(last_trade['initialUnits']) > float(last_trade['currentUnits'])
 
-        if partially_closed:
+        if partially_closed and not complete_trade_found:
             print instrument + ": A GANADORA"
-
-        if partially_closed:
             could_put_order = True
         else:
             could_put_order = False
