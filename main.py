@@ -13,6 +13,8 @@ import json
 from datetime import datetime
 from time import sleep
 
+import traceback
+
 import sys, os
 
 apiData = ApiData()
