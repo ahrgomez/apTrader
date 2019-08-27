@@ -163,16 +163,17 @@ def PutOrder(order_type, instrument, entry_price, price, stop_loss):
         result = False
 
         try:
-            if order_type == 1:
-                if entry_price < price:
-                    result = OrdersData().MakeMarketOrder(order_id, instrument, date, total_units, stop_loss)
-                else:
-                    result = OrdersData().MakeLimitOrder(order_id, instrument, entry_price, date, total_units, stop_loss)
-            else:
-                if entry_price > price:
-                    result = OrdersData().MakeMarketOrder(order_id, instrument, date, total_units, stop_loss)
-                else:
-                    result = OrdersData().MakeLimitOrder(order_id, instrument, entry_price, date, total_units, stop_loss)
+            result = OrdersData().MakeMarketOrder(order_id, instrument, date, total_units, stop_loss)
+            #if order_type == 1:
+                #if entry_price < price:
+                #    result = OrdersData().MakeMarketOrder(order_id, instrument, date, total_units, stop_loss)
+                #else:
+                #    result = OrdersData().MakeLimitOrder(order_id, instrument, entry_price, date, total_units, stop_loss)
+            #else:
+                #if entry_price > price:
+                #    result = OrdersData().MakeMarketOrder(order_id, instrument, date, total_units, stop_loss)
+                #else:
+                #    result = OrdersData().MakeLimitOrder(order_id, instrument, entry_price, date, total_units, stop_loss)
         except Exception:
             traceback.print_exc()
             errorsManagement.captureException()
