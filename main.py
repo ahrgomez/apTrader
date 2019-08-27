@@ -95,46 +95,48 @@ def ProcessPrice(instrument, price):
 
 
 def PutOrder(order_type, instrument, entry_price, price, stop_loss):
-    could_put_order = False
-
-    if apiData.ExistsTradeOfInstrument(instrument) or apiData.ExistsOrderOfInstrument(instrument):
-        trades = apiData.GetTradesOpened()
-        instrument_trades = []
-
-        complete_trade_found = False
-
-        for trade in trades:
-            if trade['instrument'] == instrument:
-                instrument_trades.append(trade)
-                partial = False
-                if float(trade['initialUnits']) < 0:
-                    partial = float(trade['initialUnits']) < float(trade['currentUnits'])
-                else:
-                    partial = float(trade['initialUnits']) > float(trade['currentUnits'])
-
-                if not partial:
-                    complete_trade_found = True
-
-        if len(instrument_trades) == 0:
-            could_put_order = False
-        else:
-            sorted(instrument_trades, key=lambda x: datetime.strptime(x['openTime'].split('.')[0], '%Y-%m-%dT%H:%M:%S'))
-
-            last_trade = instrument_trades[0]
-
-            partially_closed = False
-            if float(last_trade['initialUnits']) < 0:
-                partially_closed = float(last_trade['initialUnits']) < float(last_trade['currentUnits'])
-            else:
-                partially_closed = float(last_trade['initialUnits']) > float(last_trade['currentUnits'])
-
-            if partially_closed and not complete_trade_found:
-                print instrument + ": A GANADORA"
-                could_put_order = True
-            else:
-                could_put_order = False
+    if apiData.ExistsOrderOfInstrument(instrument):
+        could_put_order = False
     else:
-        could_put_order = True
+        if apiData.ExistsTradeOfInstrument(instrument):
+            trades = apiData.GetTradesOpened()
+            instrument_trades = []
+
+            complete_trade_found = False
+
+            for trade in trades:
+                if trade['instrument'] == instrument:
+                    instrument_trades.append(trade)
+                    partial = False
+                    if float(trade['initialUnits']) < 0:
+                        partial = float(trade['initialUnits']) < float(trade['currentUnits'])
+                    else:
+                        partial = float(trade['initialUnits']) > float(trade['currentUnits'])
+
+                    if not partial:
+                        complete_trade_found = True
+
+            if len(instrument_trades) == 0 and apiData.ExistsOrderOfInstrument(instrument):
+                could_put_order = False
+            else:
+                sorted(instrument_trades,
+                       key=lambda x: datetime.strptime(x['openTime'].split('.')[0], '%Y-%m-%dT%H:%M:%S'))
+
+                last_trade = instrument_trades[0]
+
+                partially_closed = False
+                if float(last_trade['initialUnits']) < 0:
+                    partially_closed = float(last_trade['initialUnits']) < float(last_trade['currentUnits'])
+                else:
+                    partially_closed = float(last_trade['initialUnits']) > float(last_trade['currentUnits'])
+
+                if partially_closed and not complete_trade_found:
+                    print instrument + ": A GANADORA"
+                    could_put_order = True
+                else:
+                    could_put_order = False
+        else:
+            could_put_order = True
 
     if could_put_order:
         date = datetime.now()
@@ -142,43 +144,45 @@ def PutOrder(order_type, instrument, entry_price, price, stop_loss):
         balance = apiData.GetBalance()
 
         units = apiData.GetUnitsForPrice(balance * 0.01, instrument,
-                                         instrumentsManager.instruments[instrument]['precision'], granularity,
-                                         instrumentsManager.instruments[instrument]['rate']);
+                                     instrumentsManager.instruments[instrument]['precision'], granularity,
+                                     instrumentsManager.instruments[instrument]['rate'])
 
         if units is None or units == 0:
             print "Can't have units to " + instrument
-            return None;
+            return None
 
         order_id = str(uuid.uuid1())
 
-        i, p, d = str(price).partition('.');
-        price_precision = len(d);
+        stop_loss = apiData.GetPriceFormatted(stop_loss, instrumentsManager.instruments[instrument]['pricePrecision'])
 
-        stop_loss = apiData.GetPriceFormatted(stop_loss, instrumentsManager.instruments[instrument]['pricePrecision']);
-
-        total_units = order_type * float(units);
+        total_units = order_type * float(units)
 
         entry_price = apiData.GetPriceFormatted(entry_price,
-                                                instrumentsManager.instruments[instrument]['pricePrecision']);
+                                                instrumentsManager.instruments[instrument]['pricePrecision'])
 
-        result = False;
+        result = False
 
-        if order_type == 1:
-            if entry_price < price:
-                result = OrdersData().MakeMarketOrder(order_id, instrument, date, total_units, stop_loss);
+        try:
+            if order_type == 1:
+                if entry_price < price:
+                    result = OrdersData().MakeMarketOrder(order_id, instrument, date, total_units, stop_loss)
+                else:
+                    result = OrdersData().MakeLimitOrder(order_id, instrument, entry_price, date, total_units, stop_loss)
             else:
-                result = OrdersData().MakeLimitOrder(order_id, instrument, entry_price, date, total_units, stop_loss);
-        else:
-            if entry_price > price:
-                result = OrdersData().MakeMarketOrder(order_id, instrument, date, total_units, stop_loss);
-            else:
-                result = OrdersData().MakeLimitOrder(order_id, instrument, entry_price, date, total_units, stop_loss);
+                if entry_price > price:
+                    result = OrdersData().MakeMarketOrder(order_id, instrument, date, total_units, stop_loss)
+                else:
+                    result = OrdersData().MakeLimitOrder(order_id, instrument, entry_price, date, total_units, stop_loss)
+        except Exception:
+            traceback.print_exc()
+            errorsManagement.captureException()
+            pass
 
-        if result == True:
+        if result:
             print "Made " + instrument + " order with id " + order_id + " with " + str(order_type * units) + " units"
-            return True;
+            return True
 
-        return False;
+    return False
 
 
 def GetTradeableInstrumentsByRanking():
@@ -200,6 +204,7 @@ def GetTradeableInstrumentsByRanking():
             pass
 
     return instruments
+
 
 def IsForbiddenTime():
     weekday = datetime.today().weekday();

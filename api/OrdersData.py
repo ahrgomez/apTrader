@@ -26,7 +26,7 @@ class OrdersData(object):
 
 		msg = json.loads(response.text)
 
-		return self.IsOrderSuccessfullyCreated(msg["orderCreateTransaction"]["id"])
+		return True
 
 	def _getMarketOrderBody(self, order_id, instrument, datetime, units, stop_loss):
 		order_type = "MARKET"
@@ -85,7 +85,7 @@ class OrdersData(object):
 
 		msg = json.loads(response.text)
 
-		return self.IsOrderSuccessfullyCreated(msg.orderCreateTransaction)
+		return True
 
 	def _getLimitOrderBody(self, order_id, instrument, price, datetime, units, stop_loss):
 		order_type = "MARKET_IF_TOUCHED";
