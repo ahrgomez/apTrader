@@ -25,10 +25,10 @@ DEBUG = True;
 
 
 def main():
-    # instruments_list = "AUD_CHF,CAD_CHF,NZD_USD,GBP_USD,AUD_USD,EUR_USD,EUR_GBP";
     instruments_list = "";
-    instrumentsManager.GetTradeableInstruments();
-    for inst in instrumentsManager.instruments:
+    instruments = GetTradeableInstrumentsByRanking()
+    for inst in instruments:
+        print inst
         instruments_list += inst + ",";
 
     while (True):
@@ -171,6 +171,26 @@ def PutOrder(order_type, instrument, entry_price, price, stop_loss):
 
         return False;
 
+
+def GetTradeableInstrumentsByRanking():
+    instrumentsManager.GetTradeableInstruments()
+    balance = apiData.GetBalance()
+
+    instruments = []
+
+    for instrument in instrumentsManager.instruments:
+        try:
+            if instrument == "EU50_EUR" or instrument == "DE30_EUR" or instrument == "FR40_EUR" or instrument == "NL25_EUR" or instrument == "XAU_EUR":
+                continue
+
+            pip_value = apiData.GetPipValue(instrument, balance * 0.01,
+                                            instrumentsManager.instruments[instrument]['pipLocation'], granularity)
+            if pip_value > 0.02:
+                instruments.append(instrument)
+        except:
+            pass
+
+    return instruments
 
 def IsForbiddenTime():
     weekday = datetime.today().weekday();
