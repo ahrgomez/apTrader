@@ -14,7 +14,7 @@ apiData = ApiData()
 instrumentsManager = InstrumentsManager({})
 
 granularity = "M30"
-pip_target = 4
+pip_target = 15
 ichimoku = Ichimoku(granularity)
 
 DEBUG = True;
