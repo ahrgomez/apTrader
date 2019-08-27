@@ -13,7 +13,7 @@ errorsManagement = Client('https://7aff590e4b774a43ba2255f9e1dcbeff:e88ee295381e
 apiData = ApiData()
 instrumentsManager = InstrumentsManager({})
 
-granularity = "M5"
+granularity = "M30"
 pip_target = 4
 ichimoku = Ichimoku(granularity)
 

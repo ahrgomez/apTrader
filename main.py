@@ -22,7 +22,7 @@ instrumentsManager = InstrumentsManager({})
 errorsManagement = Client('https://7932a7da676c4962895957059416bd7d:da9a1669ee724bb2b61cf7b47b430ccc@sentry.io/154029')
 
 # Strategies
-granularity = "M5"
+granularity = "M30"
 ichimoku = Ichimoku.Ichimoku(granularity)
 
 DEBUG = True;
