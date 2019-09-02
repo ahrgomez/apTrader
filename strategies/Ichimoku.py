@@ -326,11 +326,11 @@ class Ichimoku(object):
 
         return False;
 
-    def CheckIsFalseSignal(self, instrument, trade_type):
-        self._calculateIchimokuLines(instrument, None)
+    def CheckIsFalseSignal(self, instrument, trade_type, candles = None):
+        self._calculateIchimokuLines(instrument, candles)
 
-        last_tenkan = self.ichimoku_dataframe['TENKAN'].iloc[len(self.ichimoku_dataframe['TENKAN'].index) - 2]
-        last_kinjun = self.ichimoku_dataframe['KIJUN'].iloc[len(self.ichimoku_dataframe['KIJUN'].index) - 2]
+        last_tenkan = self.ichimoku_dataframe['TENKAN'].iloc[len(self.ichimoku_dataframe['TENKAN'].index) - 1]
+        last_kinjun = self.ichimoku_dataframe['KIJUN'].iloc[len(self.ichimoku_dataframe['KIJUN'].index) - 1]
 
         if trade_type == 1:
             return last_kinjun >= last_tenkan
