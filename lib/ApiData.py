@@ -42,6 +42,23 @@ class ApiData(object):
 
 			return pd.DataFrame(data)
 
+	def GetBacktestData(selfs):
+		dateparse = lambda x: pd.datetime.strptime(x, '%Y%m%d %H%M%S%f')
+		df = pd.read_csv("DAT_ASCII_EURUSD_M1_201908.csv", sep=';', parse_dates=['datetime', 'time'], date_parser=dateparse, index_col=0)
+		df.dropna()
+		resampled = pd.DataFrame()
+		resampled['time'] = df['time'].resample('30Min').min()
+		resampled['open'] = df['open'].resample('30Min').first()
+		resampled['high'] = df['high'].resample('30Min').max()
+		resampled['low'] = df['low'].resample('30Min').min()
+		resampled['close'] = df['close'].resample('30Min').last()
+		resampled['completed'] = True
+
+		resampled.columns = ['time', 'open', 'high', 'low', 'close', 'completed']
+
+		return resampled
+
+
 	def GetUnitsForPrice(self, price, instrument, precision, granularity, rate = 1):
 		local_currency = "EUR";
 		base_currency = instrument.split('_')[0];
