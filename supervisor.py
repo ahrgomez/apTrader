@@ -29,7 +29,7 @@ def main():
 
     while(True):
         try:
-            if IsForbiddenTime():
+            if IsForbiddenTime() and False:
 				print "BOLSA CERRADA";
 				sleep(60);
 				continue;
