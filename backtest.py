@@ -21,21 +21,21 @@ errorsManagement = Client('https://7932a7da676c4962895957059416bd7d:da9a1669ee72
 
 # Strategies
 granularity = "M30"
-pip_target = 15
+pip_target = 10
 ichimoku = Ichimoku.Ichimoku(granularity)
 
 TotalPips = 0
 
 trades = {}
-
+actual_candles_array = []
 DEBUG = True;
 
 
 def main():
     try:
-        instrument = 'EUR_JPY'
+        instrument = 'EUR_USD'
         candles = apiData.GetData(instrument, granularity, 5000)
-
+        #candles = apiData.GetBacktestData()
         start = 10
 
         for index, candle in candles.iterrows():
@@ -46,6 +46,8 @@ def main():
             instrument_part_B = instrument_part_B.encode('ascii', 'ignore');
 
             instrument = instrument_part_A + '_' + instrument_part_B;
+
+            global actual_candles_array
 
             actual_candles_array = candles.head(start)
 
@@ -147,20 +149,28 @@ def CheckToCloseTrade(trade, instrument, last_candle):
             TotalPips += float(trade["unrealizedPL"])
             print str(TotalPips)
             trades.pop(instrument, None)
-            #OrdersData().CloseTradePartially(trade, 0);
         else:
-            CheckTraillingStop(trade, trade['type'], last_candle['close']);
+            CheckTraillingStop(trade, trade['type'], last_candle['close'])
     else:
-        if CheckPartialClose(trade, instrument, trade['type'], last_candle):
-            #trade['price'] = float(last_candle['close'])
-            trade['stopLossOrder']['price'] = float(trade['price'])
-            print instrument + " A CERRAR A MITAD: " + str(trade["unrealizedPL"]) + " pips"
+        if IsFalseSignal(instrument, trade['type']):
+            print instrument + " FALSE SIGNAL, A CERRAR DEL TODO: " + str(trade["unrealizedPL"]) + " pips"
             TotalPips += float(trade["unrealizedPL"])
             print str(TotalPips)
-            trade['partially_closed'] = True
-            #OrdersData().CloseTradePartially(trade, 0.5);
-            #OrdersData().ModifyStopLoss(trade['stopLossOrder']['id'], trade['id'], trade['price']);
+            trades.pop(instrument, None)
+        else:
+            if CheckPartialClose(trade, instrument, trade['type'], last_candle):
+                # trade['price'] = float(last_candle['close'])
+                trade['stopLossOrder']['price'] = float(trade['price'])
+                print instrument + " A CERRAR A MITAD: " + str(trade["unrealizedPL"]) + " pips"
+                TotalPips += float(trade["unrealizedPL"])
+                print str(TotalPips)
+                trade['partially_closed'] = True
+                # OrdersData().CloseTradePartially(trade, 0.5);
+                # OrdersData().ModifyStopLoss(trade['stopLossOrder']['id'], trade['id'], trade['price']);
 
+def IsFalseSignal(instrument, trade_type):
+    global actual_candles_array
+    return ichimoku.CheckIsFalseSignal(instrument, trade_type, actual_candles_array)
 
 def CheckTraillingStop(trade, trade_type, actual_price):
     instrument = trade['instrument']
